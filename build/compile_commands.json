@@ -1,0 +1,56 @@
+[
+{
+  "directory": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DCGAL_USE_CORE=1 -DCGAL_USE_GMPXX=1 -I/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/include -isystem /opt/homebrew/Cellar/opencv/4.10.0_4/include/opencv4 -isystem /opt/homebrew/include -O3 -DNDEBUG -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk -o CMakeFiles/CoveragePlanner.dir/src/bcd.cc.o -c /Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/bcd.cc",
+  "file": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/bcd.cc",
+  "output": "CMakeFiles/CoveragePlanner.dir/src/bcd.cc.o"
+},
+{
+  "directory": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DCGAL_USE_CORE=1 -DCGAL_USE_GMPXX=1 -I/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/include -isystem /opt/homebrew/Cellar/opencv/4.10.0_4/include/opencv4 -isystem /opt/homebrew/include -O3 -DNDEBUG -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk -o CMakeFiles/CoveragePlanner.dir/src/cgal_comm.cc.o -c /Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/cgal_comm.cc",
+  "file": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/cgal_comm.cc",
+  "output": "CMakeFiles/CoveragePlanner.dir/src/cgal_comm.cc.o"
+},
+{
+  "directory": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DCGAL_USE_CORE=1 -DCGAL_USE_GMPXX=1 -I/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/include -isystem /opt/homebrew/Cellar/opencv/4.10.0_4/include/opencv4 -isystem /opt/homebrew/include -O3 -DNDEBUG -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk -o CMakeFiles/CoveragePlanner.dir/src/decomposition.cc.o -c /Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/decomposition.cc",
+  "file": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/decomposition.cc",
+  "output": "CMakeFiles/CoveragePlanner.dir/src/decomposition.cc.o"
+},
+{
+  "directory": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DCGAL_USE_CORE=1 -DCGAL_USE_GMPXX=1 -I/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/include -isystem /opt/homebrew/Cellar/opencv/4.10.0_4/include/opencv4 -isystem /opt/homebrew/include -O3 -DNDEBUG -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk -o CMakeFiles/CoveragePlanner.dir/src/main.cpp.o -c /Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/main.cpp",
+  "file": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/main.cpp",
+  "output": "CMakeFiles/CoveragePlanner.dir/src/main.cpp.o"
+},
+{
+  "directory": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DCGAL_USE_CORE=1 -DCGAL_USE_GMPXX=1 -I/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/include -isystem /opt/homebrew/Cellar/opencv/4.10.0_4/include/opencv4 -isystem /opt/homebrew/include -O3 -DNDEBUG -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk -o CMakeFiles/CoveragePlanner.dir/src/sweep.cc.o -c /Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/sweep.cc",
+  "file": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/sweep.cc",
+  "output": "CMakeFiles/CoveragePlanner.dir/src/sweep.cc.o"
+},
+{
+  "directory": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DCGAL_USE_CORE=1 -DCGAL_USE_GMPXX=1 -I/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/include -isystem /opt/homebrew/Cellar/opencv/4.10.0_4/include/opencv4 -isystem /opt/homebrew/include -O3 -DNDEBUG -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk -o CMakeFiles/CoveragePlanner.dir/src/tcd.cc.o -c /Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/tcd.cc",
+  "file": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/tcd.cc",
+  "output": "CMakeFiles/CoveragePlanner.dir/src/tcd.cc.o"
+},
+{
+  "directory": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DCGAL_USE_CORE=1 -DCGAL_USE_GMPXX=1 -I/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/include -isystem /opt/homebrew/Cellar/opencv/4.10.0_4/include/opencv4 -isystem /opt/homebrew/include -O3 -DNDEBUG -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk -o CMakeFiles/CoveragePlanner.dir/src/visibility_graph.cc.o -c /Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/visibility_graph.cc",
+  "file": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/visibility_graph.cc",
+  "output": "CMakeFiles/CoveragePlanner.dir/src/visibility_graph.cc.o"
+},
+{
+  "directory": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DCGAL_USE_CORE=1 -DCGAL_USE_GMPXX=1 -I/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/include -isystem /opt/homebrew/Cellar/opencv/4.10.0_4/include/opencv4 -isystem /opt/homebrew/include -O3 -DNDEBUG -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk -o CMakeFiles/CoveragePlanner.dir/src/visibility_polygon.cc.o -c /Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/visibility_polygon.cc",
+  "file": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/visibility_polygon.cc",
+  "output": "CMakeFiles/CoveragePlanner.dir/src/visibility_polygon.cc.o"
+},
+{
+  "directory": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DCGAL_USE_CORE=1 -DCGAL_USE_GMPXX=1 -I/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/include -isystem /opt/homebrew/Cellar/opencv/4.10.0_4/include/opencv4 -isystem /opt/homebrew/include -O3 -DNDEBUG -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk -o CMakeFiles/CoveragePlanner.dir/src/weakly_monotone.cc.o -c /Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/weakly_monotone.cc",
+  "file": "/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/src/weakly_monotone.cc",
+  "output": "CMakeFiles/CoveragePlanner.dir/src/weakly_monotone.cc.o"
+}
+]

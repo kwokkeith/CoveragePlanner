@@ -334,6 +334,7 @@ int main(){
         cv::line(img, p1, p2, cv::Scalar(200, 200, 200));
     }
     cv::waitKey(1000);
+    cv::imwrite("image_result.png", img);
 #else
 
     cv::Point p1, p2;

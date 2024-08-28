@@ -19,8 +19,9 @@
 
 #include <vector>
 
-#include "bcd.h"
 #include "cgal_comm.h"
+#include "bcd.h"
+
 
 namespace polygon_coverage_planning {
 
