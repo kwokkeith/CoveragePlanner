@@ -3,31 +3,45 @@
 
 int main() {
 
-  //TODO: (KEITH) Put the image path into a params file
+  // TODO: (KEITH) Put the image path into a params file
   cv::Mat img = cv::imread("../data/map2.pgm");
 
   std::cout << "Read map" << std::endl;
+  std::cout << "Pre-Processing map image" << std::endl;
 
+  // Image Pre-processing (Reduce noise of image)
   cv::Mat gray;
   cv::cvtColor(img, gray, cv::COLOR_BGR2GRAY);
 
   cv::Mat img_ = gray.clone();
 
+  // Takes every pixel and declare to be only black or white
+  // Binarizes the image (Making contrast clear)
   cv::threshold(img_, img_, 250, 255, 0);
 
-  // TODO: (KEITH) Robot radius is defined here, find a way to put it into
-  // params
-  std::cout << "Calculating erode kernel, this may take awhile..." << std::endl;
+  // TODO: (KEITH) Robot radius (Size) is defined here, put into params file
+  // Seems to have a minimum size of (4, 4)
+
+  std::cout << "--Applying morphological operations onto image--" << std::endl;
+
+  // Makes kernel in an ellipse shape of a certain size
+  // And runs through the entire image and sets each kernel batch, all pixels
+  // in the kernel, to the minimum value of that kernel (0 for black)
   cv::Mat erode_kernel =
-      cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 5),
+      cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5),
                                 cv::Point(-1, -1)); // size: robot radius
   cv::morphologyEx(img_, img_, cv::MORPH_ERODE, erode_kernel);
+  std::cout << "Erosion Kernel for robot size applied" << std::endl;
 
+  // Applied after the above erosion kernel to enhance image
   cv::Mat open_kernel = cv::getStructuringElement(
       cv::MORPH_ELLIPSE, cv::Size(5, 5), cv::Point(-1, -1));
   cv::morphologyEx(img_, img_, cv::MORPH_OPEN, open_kernel);
+  std::cout << "Open Kernel applied" << std::endl;
 
   //    cv::imshow("preprocess", img_);
+
+  std::cout << std::string(50, '-') << std::endl;
 
   std::vector<std::vector<cv::Point>> cnts;
   std::vector<cv::Vec4i> hierarchy; // index: next, prev, first_child, parent
@@ -74,14 +88,18 @@ int main() {
   for (int i = 0; i < polys.size(); i++) {
     cv::drawContours(poly_canvas, polys, i, cv::Scalar(255, 0, 255));
   }
+
   //    cv::imshow("polygons", poly_canvas);
+  //    cv::waitKey();
 
   cv::Mat poly_img = cv::Mat(img.rows, img.cols, CV_8UC3);
   poly_img.setTo(255);
   for (int i = 0; i < polys.size(); i++) {
     cv::drawContours(poly_img, polys, i, cv::Scalar(0, 0, 0));
   }
+
   //    cv::imshow("only polygons", poly_img);
+  //    cv::waitKey();
 
   // compute main direction
 
@@ -104,10 +122,10 @@ int main() {
     line_deg_idx = (int(line_deg) + 180) % 180; // [0, 180)
     line_deg_histogram[line_deg_idx] += int(line_len);
 
-    //        std::cout<<"deg: "<<line_deg_idx<<std::endl;
-    //        cv::line(line_canvas, ext_poly[i], ext_poly[i-1],
-    //        cv::Scalar(255,255,0)); cv::imshow("lines",line_canvas);
-    //        cv::waitKey();
+    //          std::cout<<"deg: "<<line_deg_idx<<std::endl;
+    //          cv::line(line_canvas, ext_poly[i], ext_poly[i-1],
+    //          cv::Scalar(255,255,0)); cv::imshow("lines",line_canvas);
+    //          cv::waitKey();
   }
 
   //    cv::waitKey();
@@ -148,54 +166,54 @@ int main() {
                                                                 &bcd_cells);
 
   // test decomposition
-  //    std::vector<std::vector<cv::Point>> bcd_polys;
-  //    std::vector<cv::Point> bcd_poly;
-  //
-  //    for(const auto& cell:bcd_cells){
-  //        for(int i = 0; i < cell.size(); i++){
-  //            bcd_poly.emplace_back(cv::Point(CGAL::to_double(cell[i].x()),
-  //            CGAL::to_double(cell[i].y())));
-  //        }
-  //        bcd_polys.emplace_back(bcd_poly);
-  //        bcd_poly.clear();
-  //    }
+  //  std::vector<std::vector<cv::Point>> bcd_polys;
+  //  std::vector<cv::Point> bcd_poly;
 
-  //    for(int i = 0; i < bcd_polys.size(); i++){
-  //        cv::drawContours(poly_img, bcd_polys, i, cv::Scalar(255,0,255));
-  //        cv::imshow("bcd", poly_img);
-  //        cv::waitKey();
-  //    }
-  //    cv::imshow("bcd", poly_img);
-  //    cv::waitKey();
+  //  for(const auto& cell:bcd_cells){
+  //      for(int i = 0; i < cell.size(); i++){
+  //          bcd_poly.emplace_back(cv::Point(CGAL::to_double(cell[i].x()),
+  //          CGAL::to_double(cell[i].y())));
+  //      }
+  //      bcd_polys.emplace_back(bcd_poly);
+  //      bcd_poly.clear();
+  //  }
+
+  //  for(int i = 0; i < bcd_polys.size(); i++){
+  //      cv::drawContours(poly_img, bcd_polys, i, cv::Scalar(255,0,255));
+  //      cv::imshow("bcd", poly_img);
+  //      cv::waitKey();
+  //  }
+  //  cv::imshow("bcd", poly_img);
+  //  cv::waitKey();
 
   // construct adjacent graph
-  //    std::map<size_t, std::set<size_t>> cell_graph;
-  //    bool succeed = calculateDecompositionAdjacency(bcd_cells, &cell_graph);
-  //
-  //    if(succeed){
-  //        std::cout<<"cell graph was constructed"<<std::endl;
-  //    }else{
-  //        std::cout<<"cell graph wasn't constructed"<<std::endl;
-  //    }
-  //
-  //    for(auto cell_it=cell_graph.begin(); cell_it!=cell_graph.end();
-  //    cell_it++){
-  //        std::cout<<"cell "<<cell_it->first<<" 's neighbors: "<<std::endl;
-  //        for(auto it=cell_it->second.begin(); it!=cell_it->second.end();
-  //        it++){
-  //            std::cout<<*it<<" ";
-  //        }
-  //        std::cout<<std::endl<<std::endl;
-  //    }
+  //  std::map<size_t, std::set<size_t>> cell_graph;
+  //  bool succeed = calculateDecompositionAdjacency(bcd_cells, &cell_graph);
+
+  //  if(succeed){
+  //      std::cout<<"cell graph was constructed"<<std::endl;
+  //  }else{
+  //      std::cout<<"cell graph wasn't constructed"<<std::endl;
+  //  }
+
+  //  for(auto cell_it=cell_graph.begin(); cell_it!=cell_graph.end();
+  //  cell_it++){
+  //      std::cout<<"cell "<<cell_it->first<<" 's neighbors: "<<std::endl;
+  //      for(auto it=cell_it->second.begin(); it!=cell_it->second.end();
+  //      it++){
+  //          std::cout<<*it<<" ";
+  //      }
+  //      std::cout<<std::endl<<std::endl;
+  //  }
 
   auto cell_graph = calculateDecompositionAdjacency(bcd_cells);
-  //    for(auto& cell:cell_graph){
-  //        std::cout<<"cell "<<cell.cellIndex<<" 's neighbors: "<<std::endl;
-  //        for(auto& neighbor:cell.neighbor_indices){
-  //            std::cout<<neighbor<<" "<<std::endl;
-  //        }
-  //        std::cout<<std::endl;
-  //    }
+  //  for(auto& cell:cell_graph){
+  //      std::cout<<"cell "<<cell.cellIndex<<" 's neighbors: "<<std::endl;
+  //      for(auto& neighbor:cell.neighbor_indices){
+  //          std::cout<<neighbor<<" "<<std::endl;
+  //      }
+  //      std::cout<<std::endl;
+  //  }
 
   Point_2 start = getStartingPoint(img);
   int starting_cell_idx = getCellIndexOfPoint(bcd_cells, start);
@@ -206,9 +224,9 @@ int main() {
     std::cout << "->" << cell_idx;
   }
 
-  // TODO: (KEITH) sweep_step is the robot offset, implement a parameter file to
-  // contain all params
-  int sweep_step = 3;
+  // TODO: (KEITH) sweep_step (distance per step in sweep),
+  // implement a parameter file
+  int sweep_step = 5;
 
   std::vector<std::vector<Point_2>> cells_sweeps;
 
