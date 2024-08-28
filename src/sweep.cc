@@ -23,16 +23,17 @@
 
 namespace polygon_coverage_planning {
 
-bool computeSweep(const Polygon_2& in,
-                  const visibility_graph::VisibilityGraph& visibility_graph,
-                  const FT offset, const Direction_2& dir,
-                  bool counter_clockwise, std::vector<Point_2>* waypoints) {
+bool computeSweep(const Polygon_2 &in,
+                  const visibility_graph::VisibilityGraph &visibility_graph,
+                  const FT offset, const Direction_2 &dir,
+                  bool counter_clockwise, std::vector<Point_2> *waypoints) {
   waypoints->clear();
   const FT kSqOffset = offset * offset;
 
   // Assertions.
   // TODO(rikba): Check monotone perpendicular to dir.
-  if (!in.is_counterclockwise_oriented()) return false;
+  if (!in.is_counterclockwise_oriented())
+    return false;
 
   // Find start sweep.
   Line_2 sweep(Point_2(0.0, 0.0), dir);
@@ -48,7 +49,8 @@ bool computeSweep(const Polygon_2& in,
   bool has_sweep_segment = findSweepSegment(in, sweep, &sweep_segment);
   while (has_sweep_segment) {
     // Align sweep segment.
-    if (counter_clockwise) sweep_segment = sweep_segment.opposite();
+    if (counter_clockwise)
+      sweep_segment = sweep_segment.opposite();
     // Connect previous sweep.
     if (!waypoints->empty()) {
       std::vector<Point_2> shortest_path;
@@ -83,7 +85,7 @@ bool computeSweep(const Polygon_2& in,
       has_sweep_segment = findSweepSegment(in, sweep, &sweep_segment);
       // 没切到polygon的不要
       if (!has_sweep_segment) {
-        std::cout<<"Failed to calculate final sweep."<<std::endl;
+        std::cout << "Failed to calculate final sweep." << std::endl;
         return false;
       }
       // Do not add super close sweep. sweep之间不能相距太近，太近的不要
@@ -102,8 +104,8 @@ bool computeSweep(const Polygon_2& in,
         sweep = Line_2(*unobservable_point, dir);
         has_sweep_segment = findSweepSegment(in, sweep, &sweep_segment);
         if (!has_sweep_segment) {
-            std::cout<<"Failed to calculate extra sweep at point: "
-                           << *unobservable_point<<std::endl;
+          std::cout << "Failed to calculate extra sweep at point: "
+                    << *unobservable_point << std::endl;
           return false;
         }
       }
@@ -116,25 +118,27 @@ bool computeSweep(const Polygon_2& in,
   return true;
 }
 
-bool findSweepSegment(const Polygon_2& p, const Line_2& l,
-                      Segment_2* sweep_segment) {
+bool findSweepSegment(const Polygon_2 &p, const Line_2 &l,
+                      Segment_2 *sweep_segment) {
   std::vector<Point_2> intersections = findIntersections(p, l);
-  if (intersections.empty()) return false;
+  if (intersections.empty())
+    return false;
   *sweep_segment = Segment_2(intersections.front(), intersections.back());
   return true;
 }
 
 void checkObservability(
-    const Segment_2& prev_sweep, const Segment_2& sweep,
-    const std::vector<Point_2>& sorted_pts, const FT max_sq_distance,
-    std::vector<Point_2>::const_iterator* lowest_unobservable_point) {
+    const Segment_2 &prev_sweep, const Segment_2 &sweep,
+    const std::vector<Point_2> &sorted_pts, const FT max_sq_distance,
+    std::vector<Point_2>::const_iterator *lowest_unobservable_point) {
   *lowest_unobservable_point = sorted_pts.end();
 
   // Find first point that is between prev_sweep and sweep and unobservable.
   for (std::vector<Point_2>::const_iterator it = sorted_pts.begin();
        it != sorted_pts.end(); ++it) {
     // 左边/逆时针 = 正； 右边/顺时针 = 负
-    if (prev_sweep.supporting_line().has_on_positive_side(*it)) continue;
+    if (prev_sweep.supporting_line().has_on_positive_side(*it))
+      continue;
     if (sweep.supporting_line().has_on_negative_side(*it)) {
       break;
     }
@@ -149,8 +153,8 @@ void checkObservability(
   }
 }
 
-bool computeAllSweeps(const Polygon_2& poly, const double max_sweep_offset,
-                      std::vector<std::vector<Point_2>>* cluster_sweeps) {
+bool computeAllSweeps(const Polygon_2 &poly, const double max_sweep_offset,
+                      std::vector<std::vector<Point_2>> *cluster_sweeps) {
   cluster_sweeps->clear();
   cluster_sweeps->reserve(2 * poly.size());
 
@@ -159,12 +163,12 @@ bool computeAllSweeps(const Polygon_2& poly, const double max_sweep_offset,
 
   // Compute all possible sweeps.
   visibility_graph::VisibilityGraph vis_graph(poly);
-  for (const Direction_2& dir : dirs) {
+  for (const Direction_2 &dir : dirs) {
     bool counter_clockwise = true;
     std::vector<Point_2> sweep;
     if (!computeSweep(poly, vis_graph, max_sweep_offset, dir, counter_clockwise,
                       &sweep)) {
-        std::cout<<"Cannot compute counter-clockwise sweep."<<std::endl;
+      std::cout << "Cannot compute counter-clockwise sweep." << std::endl;
       return false;
     } else {
       cluster_sweeps->push_back(sweep);
@@ -174,7 +178,7 @@ bool computeAllSweeps(const Polygon_2& poly, const double max_sweep_offset,
 
     if (!computeSweep(poly, vis_graph, max_sweep_offset, dir,
                       !counter_clockwise, &sweep)) {
-        std::cout<<"Cannot compute clockwise sweep."<<std::endl;
+      std::cout << "Cannot compute clockwise sweep." << std::endl;
       return false;
     } else {
       cluster_sweeps->push_back(sweep);
@@ -186,43 +190,42 @@ bool computeAllSweeps(const Polygon_2& poly, const double max_sweep_offset,
 }
 
 bool calculateShortestPath(
-    const visibility_graph::VisibilityGraph& visibility_graph,
-    const Point_2& start, const Point_2& goal,
-    std::vector<Point_2>* shortest_path) {
+    const visibility_graph::VisibilityGraph &visibility_graph,
+    const Point_2 &start, const Point_2 &goal,
+    std::vector<Point_2> *shortest_path) {
   shortest_path->clear();
 
   Polygon_2 start_visibility, goal_visibility;
   if (!computeVisibilityPolygon(visibility_graph.getPolygon(), start,
                                 &start_visibility)) {
-      std::cout<<"Cannot compute visibility polygon from start query point "
-                     << start
-                     << " in polygon: " << visibility_graph.getPolygon()<<std::endl;
+    std::cout << "Cannot compute visibility polygon from start query point "
+              << start << " in polygon: " << visibility_graph.getPolygon()
+              << std::endl;
     return false;
   }
   if (!computeVisibilityPolygon(visibility_graph.getPolygon(), goal,
                                 &goal_visibility)) {
-      std::cout<<"Cannot compute visibility polygon from goal query point "
-                     << goal
-                     << " in polygon: " << visibility_graph.getPolygon()<<std::endl;
+    std::cout << "Cannot compute visibility polygon from goal query point "
+              << goal << " in polygon: " << visibility_graph.getPolygon()
+              << std::endl;
     return false;
   }
   if (!visibility_graph.solve(start, start_visibility, goal, goal_visibility,
                               shortest_path)) {
-      std::cout<<"Cannot compute shortest path from "
-                     << start << " to " << goal
-                     << " in polygon: " << visibility_graph.getPolygon()<<std::endl;
+    std::cout << "Cannot compute shortest path from " << start << " to " << goal
+              << " in polygon: " << visibility_graph.getPolygon() << std::endl;
     return false;
   }
 
   if (shortest_path->size() < 2) {
-      std::cout<<"Shortest path too short."<<std::endl;
+    std::cout << "Shortest path too short." << std::endl;
     return false;
   }
 
   return true;
 }
 
-std::vector<Point_2> sortVerticesToLine(const Polygon_2& p, const Line_2& l) {
+std::vector<Point_2> sortVerticesToLine(const Polygon_2 &p, const Line_2 &l) {
   // Copy points.
   std::vector<Point_2> pts(p.size());
   std::vector<Point_2>::iterator pts_it = pts.begin();
@@ -233,14 +236,14 @@ std::vector<Point_2> sortVerticesToLine(const Polygon_2& p, const Line_2& l) {
 
   // Sort.
   std::sort(pts.begin(), pts.end(),
-            [&l](const Point_2& a, const Point_2& b) -> bool {
+            [&l](const Point_2 &a, const Point_2 &b) -> bool {
               return CGAL::has_smaller_signed_distance_to_line(l, a, b);
             });
 
   return pts;
 }
 
-std::vector<Point_2> findIntersections(const Polygon_2& p, const Line_2& l) {
+std::vector<Point_2> findIntersections(const Polygon_2 &p, const Line_2 &l) {
   std::vector<Point_2> intersections;
   typedef CGAL::cpp11::result_of<Intersect_2(Segment_2, Line_2)>::type
       Intersection;
@@ -248,7 +251,7 @@ std::vector<Point_2> findIntersections(const Polygon_2& p, const Line_2& l) {
   for (EdgeConstIterator it = p.edges_begin(); it != p.edges_end(); ++it) {
     Intersection result = CGAL::intersection(*it, l);
     if (result) {
-      if (const Segment_2* s = boost::get<Segment_2>(&*result)) {
+      if (const Segment_2 *s = boost::get<Segment_2>(&*result)) {
         intersections.push_back(s->source());
         intersections.push_back(s->target());
       } else {
@@ -260,11 +263,11 @@ std::vector<Point_2> findIntersections(const Polygon_2& p, const Line_2& l) {
   // Sort.
   Line_2 perp_l = l.perpendicular(l.point(0));
   std::sort(intersections.begin(), intersections.end(),
-            [&perp_l](const Point_2& a, const Point_2& b) -> bool {
+            [&perp_l](const Point_2 &a, const Point_2 &b) -> bool {
               return CGAL::has_smaller_signed_distance_to_line(perp_l, a, b);
             });
 
   return intersections;
 }
 
-}  // namespace polygon_coverage_planning
+} // namespace polygon_coverage_planning
