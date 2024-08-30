@@ -8,6 +8,7 @@
 #include <fstream>
 
 #define PARAMETER_FILE_PATH "../config/params.config"
+#define WAYPOINT_COORDINATE_FILE_PATH "../result/waypoints.txt"
 
 std::string image_path;
 uint robot_width;
@@ -69,7 +70,7 @@ int main() {
     return EXIT_FAILURE;
   }
 
-  // TODO: (KEITH) Put the image path into a params file
+  // Read image to be processed
   cv::Mat img = cv::imread(image_path);
 
   std::cout << "Read map" << std::endl;
@@ -85,7 +86,7 @@ int main() {
   // Binarizes the image (Making contrast clear)
   cv::threshold(img_, img_, 250, 255, 0);
 
-  // TODO: (KEITH) Robot radius (Size) is defined here, put into params file
+  // Robot radius (Size) is defined here
   // Seems to have a minimum size of (4, 4)
 
   std::cout << "--Applying morphological operations onto image--" << std::endl;
@@ -99,7 +100,6 @@ int main() {
   cv::morphologyEx(img_, img_, cv::MORPH_ERODE, erode_kernel);
   std::cout << "Erosion Kernel for robot size applied" << std::endl;
 
-  // TODO: MORPH Size
   //  Applied after the above erosion kernel to enhance image
   //  Can use MORPH_RECT, MORPH_ELLIPSE
   cv::Mat open_kernel = cv::getStructuringElement(
@@ -108,12 +108,15 @@ int main() {
   cv::morphologyEx(img_, img_, cv::MORPH_OPEN, open_kernel);
   std::cout << "Open Kernel applied" << std::endl;
 
-  // Applied after the above erosion kernel to enhance image
-  // Can use MORPH_RECT, MORPH_ELLIPSE
-  open_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(10, 10),
-                                          cv::Point(-1, -1));
-  cv::morphologyEx(img_, img_, cv::MORPH_OPEN, open_kernel);
-  std::cout << "Open Kernel applied" << std::endl;
+  // TODO: SECOND RUN OF Preprocessing if needed
+
+  /*// Applied after the above erosion kernel to enhance image*/
+  /*// Can use MORPH_RECT, MORPH_ELLIPSE*/
+  /*open_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(10, 10),*/
+  /*                                        cv::Point(-1, -1));*/
+  /*cv::morphologyEx(img_, img_, cv::MORPH_OPEN, open_kernel);*/
+  /*std::cout << "Open Kernel applied" << std::endl;*/
+  /**/
 
   cv::imshow("preprocess", img_);
   cv::waitKey();
@@ -310,8 +313,7 @@ int main() {
     std::cout << "->" << cell_idx;
   }
 
-  // TODO: (KEITH) sweep_step (distance per step in sweep),
-  // implement a parameter file
+  // sweep_step (distance per step in sweep),
   // int sweep_step = 5;
 
   std::vector<std::vector<Point_2>> cells_sweeps;
@@ -495,6 +497,10 @@ int main() {
   cv::namedWindow("cover", cv::WINDOW_NORMAL);
   cv::imshow("cover", img);
   cv::waitKey();
+
+  // Open waypoint file to write coordinates
+  std::ofstream out(WAYPOINT_COORDINATE_FILE_PATH);
+
   for (size_t i = 1; i < way_points.size(); ++i) {
     p1 = cv::Point(CGAL::to_double(way_points[i - 1].x()),
                    CGAL::to_double(way_points[i - 1].y()));
@@ -505,7 +511,17 @@ int main() {
     cv::imshow("cover", img);
     //        cv::waitKey(50);
     cv::line(img, p1, p2, cv::Scalar(200, 200, 200));
+
+    // Write waypoints to a file (to be fed as coordinates for robot)
+    if (i == 1) {
+      out << "(" << p1.x << "," << p1.y << ")" << std::endl;
+    }
+    // For all other points we will just use p2,
+    // we do not pass both p1 and p2 as it would duplicate the points
+    out << "(" << p2.x << "," << p2.y << ")" << std::endl;
   }
+  out.close();
+
   cv::waitKey();
   cv::imwrite("image_result.png", img);
 #else
