@@ -17,15 +17,14 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "bcd.h"
 #include "decomposition.h"
+#include "bcd.h"
 #include "tcd.h"
 #include "weakly_monotone.h"
 
-
 namespace polygon_coverage_planning {
 
-std::vector<Direction_2> findEdgeDirections(const PolygonWithHoles& pwh) {
+std::vector<Direction_2> findEdgeDirections(const PolygonWithHoles &pwh) {
   // Get all possible polygon directions.
   std::vector<Direction_2> directions;
   for (size_t i = 0; i < pwh.outer_boundary().size(); ++i) {
@@ -41,7 +40,7 @@ std::vector<Direction_2> findEdgeDirections(const PolygonWithHoles& pwh) {
   // Remove redundant directions.
   std::set<size_t> to_remove;
   for (size_t i = 0; i < directions.size() - 1; ++i) {
-    for (size_t j = i + 1; j < directions.size(); ++j) {
+    for (size_t j = i + 1;j < directions.size(); ++j) {
       if (CGAL::orientation(directions[i].vector(), directions[j].vector()) ==
           CGAL::COLLINEAR)
         to_remove.insert(j);
@@ -61,23 +60,23 @@ std::vector<Direction_2> findEdgeDirections(const PolygonWithHoles& pwh) {
   return directions;
 }
 
-std::vector<Direction_2> findPerpEdgeDirections(const PolygonWithHoles& pwh) {
+std::vector<Direction_2> findPerpEdgeDirections(const PolygonWithHoles &pwh) {
   std::vector<Direction_2> directions = findEdgeDirections(pwh);
-  for (auto& d : directions) {
+  for (auto &d : directions) {
     d = Direction_2(-d.dy(), d.dx());
   }
 
   return directions;
 }
 
-double findBestSweepDir(const Polygon_2& cell, Direction_2* best_dir) {
+double findBestSweepDir(const Polygon_2 &cell, Direction_2 *best_dir) {
   // Get all sweepable edges.
   PolygonWithHoles pwh(cell);
   std::vector<Direction_2> edge_dirs = getAllSweepableEdgeDirections(cell);
 
   // Find minimum altitude.
   double min_altitude = std::numeric_limits<double>::max();
-  for (const auto& dir : edge_dirs) {
+  for (const auto &dir : edge_dirs) {
     auto s = findSouth(cell, Line_2(Point_2(CGAL::ORIGIN), dir));
     auto n = findNorth(cell, Line_2(Point_2(CGAL::ORIGIN), dir));
     auto orthogonal_vec =
@@ -89,15 +88,17 @@ double findBestSweepDir(const Polygon_2& cell, Direction_2* best_dir) {
 
     if (altitude < min_altitude) {
       min_altitude = altitude;
-      if (best_dir) *best_dir = dir;
+      if (best_dir)
+        *best_dir = dir;
     }
   }
 
   return min_altitude;
 }
 
-bool computeBestBCDFromPolygonWithHoles(const PolygonWithHoles& pwh,
-                                        std::vector<Polygon_2>* bcd_polygons) {
+// TODO: This function uses too much memory
+bool computeBestBCDFromPolygonWithHoles(const PolygonWithHoles &pwh,
+                                        std::vector<Polygon_2> *bcd_polygons) {
   bcd_polygons->clear();
   double min_altitude_sum = std::numeric_limits<double>::max();
 
@@ -105,13 +106,15 @@ bool computeBestBCDFromPolygonWithHoles(const PolygonWithHoles& pwh,
   std::vector<Direction_2> directions = findPerpEdgeDirections(pwh);
 
   // For all possible rotations:
-  for (const auto& dir : directions) {
+  for (const auto &dir : directions) {
+    // std::cout << "Performing calculation for " << dir << std::endl;
+
     // Calculate decomposition.
     std::vector<Polygon_2> cells = computeBCD(pwh, dir);
 
     // Calculate minimum altitude sum for each cell.
     double min_altitude_sum_tmp = 0.0;
-    for (const auto& cell : cells) {
+    for (const auto &cell : cells) {
       min_altitude_sum_tmp += findBestSweepDir(cell);
     }
 
@@ -128,8 +131,8 @@ bool computeBestBCDFromPolygonWithHoles(const PolygonWithHoles& pwh,
     return true;
 }
 
-bool computeBestTCDFromPolygonWithHoles(const PolygonWithHoles& pwh,
-                                        std::vector<Polygon_2>* tcd_polygons) {
+bool computeBestTCDFromPolygonWithHoles(const PolygonWithHoles &pwh,
+                                        std::vector<Polygon_2> *tcd_polygons) {
   tcd_polygons->clear();
   double min_altitude_sum = std::numeric_limits<double>::max();
 
@@ -137,13 +140,13 @@ bool computeBestTCDFromPolygonWithHoles(const PolygonWithHoles& pwh,
   std::vector<Direction_2> directions = findPerpEdgeDirections(pwh);
 
   // For all possible rotations:
-  for (const auto& dir : directions) {
+  for (const auto &dir : directions) {
     // Calculate decomposition.
     std::vector<Polygon_2> cells = computeTCD(pwh, dir);
 
     // Calculate minimum altitude sum for each cell.
     double min_altitude_sum_tmp = 0.0;
-    for (const auto& cell : cells) {
+    for (const auto &cell : cells) {
       min_altitude_sum_tmp += findBestSweepDir(cell);
     }
 
@@ -160,4 +163,4 @@ bool computeBestTCDFromPolygonWithHoles(const PolygonWithHoles& pwh,
     return true;
 }
 
-}  // namespace polygon_coverage_planning
+} // namespace polygon_coverage_planning

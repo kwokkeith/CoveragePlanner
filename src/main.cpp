@@ -1,10 +1,76 @@
 #include "coverage_planner.h"
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <ostream>
+#include <string>
 #define DENSE_PATH
+#include <fstream>
+
+#define PARAMETER_FILE_PATH "../config/params.config"
+
+std::string image_path;
+uint robot_width;
+uint robot_height;
+uint open_kernel_width;
+uint open_kernel_height;
+int sweep_step;
+bool show_cells;
+
+bool LoadParameters() {
+  // Load parameters from config file
+  std::ifstream in(PARAMETER_FILE_PATH);
+
+  // Check if there is any error opening parameter file
+  if (!in.is_open()) {
+    std::cout << "Error: Cannot open parameters file from "
+              << PARAMETER_FILE_PATH << ": " << strerror(errno) << std::endl;
+    return false;
+  }
+
+  std::string param;
+
+  while (!in.eof()) {
+    in >> param;
+
+    if (param == "IMAGE_PATH") {
+      in >> image_path;
+    } else if (param == "ROBOT_SIZE") {
+      in >> robot_width;
+      in >> robot_height;
+    } else if (param == "MORPH_SIZE") {
+      in >> open_kernel_width;
+      in >> open_kernel_height;
+    } else if (param == "SWEEP_STEP") {
+      in >> sweep_step;
+    } else if (param == "SHOW_CELLS") {
+      std::string show_cells_str;
+      in >> show_cells;
+    }
+  }
+  in.close();
+
+  // Log the loaded parameters
+  std::cout << "Parameters Loaded:" << std::endl;
+  std::cout << "image_path: " << image_path << std::endl;
+  std::cout << "robot_width, robot_height: " << robot_width << " "
+            << robot_height << std::endl;
+  std::cout << "open_kernel_width, open_kernel_height: " << open_kernel_width
+            << " " << open_kernel_height << std::endl;
+  std::cout << "sweep_step: " << sweep_step << std::endl;
+  std::cout << "show_cells: " << show_cells << std::endl;
+
+  return true;
+}
 
 int main() {
+  // Load parameters from config file
+  if (!LoadParameters()) {
+    return EXIT_FAILURE;
+  }
 
   // TODO: (KEITH) Put the image path into a params file
-  cv::Mat img = cv::imread("../data/map2.pgm");
+  cv::Mat img = cv::imread(image_path);
 
   std::cout << "Read map" << std::endl;
   std::cout << "Pre-Processing map image" << std::endl;
@@ -27,19 +93,31 @@ int main() {
   // Makes kernel in an ellipse shape of a certain size
   // And runs through the entire image and sets each kernel batch, all pixels
   // in the kernel, to the minimum value of that kernel (0 for black)
-  cv::Mat erode_kernel =
-      cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5),
-                                cv::Point(-1, -1)); // size: robot radius
+  cv::Mat erode_kernel = cv::getStructuringElement(
+      cv::MORPH_ELLIPSE, cv::Size(robot_width, robot_height),
+      cv::Point(-1, -1)); // size: robot radius
   cv::morphologyEx(img_, img_, cv::MORPH_ERODE, erode_kernel);
   std::cout << "Erosion Kernel for robot size applied" << std::endl;
 
-  // Applied after the above erosion kernel to enhance image
+  // TODO: MORPH Size
+  //  Applied after the above erosion kernel to enhance image
+  //  Can use MORPH_RECT, MORPH_ELLIPSE
   cv::Mat open_kernel = cv::getStructuringElement(
-      cv::MORPH_ELLIPSE, cv::Size(5, 5), cv::Point(-1, -1));
+      cv::MORPH_ELLIPSE, cv::Size(open_kernel_width, open_kernel_height),
+      cv::Point(-1, -1));
   cv::morphologyEx(img_, img_, cv::MORPH_OPEN, open_kernel);
   std::cout << "Open Kernel applied" << std::endl;
 
-  //    cv::imshow("preprocess", img_);
+  // Applied after the above erosion kernel to enhance image
+  // Can use MORPH_RECT, MORPH_ELLIPSE
+  open_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(10, 10),
+                                          cv::Point(-1, -1));
+  cv::morphologyEx(img_, img_, cv::MORPH_OPEN, open_kernel);
+  std::cout << "Open Kernel applied" << std::endl;
+
+  cv::imshow("preprocess", img_);
+  cv::waitKey();
+  cv::imwrite("preprocess_img.png", img_);
 
   std::cout << std::string(50, '-') << std::endl;
 
@@ -89,8 +167,8 @@ int main() {
     cv::drawContours(poly_canvas, polys, i, cv::Scalar(255, 0, 255));
   }
 
-  //    cv::imshow("polygons", poly_canvas);
-  //    cv::waitKey();
+  cv::imshow("polygons", poly_canvas);
+  cv::waitKey();
 
   cv::Mat poly_img = cv::Mat(img.rows, img.cols, CV_8UC3);
   poly_img.setTo(255);
@@ -156,7 +234,10 @@ int main() {
 
   PolygonWithHoles pwh(outer_polygon, holes.begin(), holes.end());
 
+  std::cout << "constructed polygons" << std::endl;
+
   // cell decomposition
+  // TODO: Bottleneck for memory space
 
   std::vector<Polygon_2> bcd_cells;
 
@@ -165,27 +246,30 @@ int main() {
   polygon_coverage_planning::computeBestBCDFromPolygonWithHoles(pwh,
                                                                 &bcd_cells);
 
+  std::cout << "Cell decomposition complete" << std::endl;
+
   // test decomposition
-  //  std::vector<std::vector<cv::Point>> bcd_polys;
-  //  std::vector<cv::Point> bcd_poly;
+  if (show_cells) {
+    std::vector<std::vector<cv::Point>> bcd_polys;
+    std::vector<cv::Point> bcd_poly;
 
-  //  for(const auto& cell:bcd_cells){
-  //      for(int i = 0; i < cell.size(); i++){
-  //          bcd_poly.emplace_back(cv::Point(CGAL::to_double(cell[i].x()),
-  //          CGAL::to_double(cell[i].y())));
-  //      }
-  //      bcd_polys.emplace_back(bcd_poly);
-  //      bcd_poly.clear();
-  //  }
+    for (const auto &cell : bcd_cells) {
+      for (int i = 0; i < cell.size(); i++) {
+        bcd_poly.emplace_back(cv::Point(CGAL::to_double(cell[i].x()),
+                                        CGAL::to_double(cell[i].y())));
+      }
+      bcd_polys.emplace_back(bcd_poly);
+      bcd_poly.clear();
+    }
 
-  //  for(int i = 0; i < bcd_polys.size(); i++){
-  //      cv::drawContours(poly_img, bcd_polys, i, cv::Scalar(255,0,255));
-  //      cv::imshow("bcd", poly_img);
-  //      cv::waitKey();
-  //  }
-  //  cv::imshow("bcd", poly_img);
-  //  cv::waitKey();
-
+    for (int i = 0; i < bcd_polys.size(); i++) {
+      cv::drawContours(poly_img, bcd_polys, i, cv::Scalar(255, 0, 255));
+      cv::imshow("bcd", poly_img);
+      cv::waitKey();
+    }
+    cv::imshow("bcd", poly_img);
+    cv::waitKey();
+  }
   // construct adjacent graph
   //  std::map<size_t, std::set<size_t>> cell_graph;
   //  bool succeed = calculateDecompositionAdjacency(bcd_cells, &cell_graph);
@@ -215,6 +299,8 @@ int main() {
   //      std::cout<<std::endl;
   //  }
 
+  std::cout << "Select starting point" << std::endl;
+
   Point_2 start = getStartingPoint(img);
   int starting_cell_idx = getCellIndexOfPoint(bcd_cells, start);
   auto cell_idx_path = getTravellingPath(cell_graph, starting_cell_idx);
@@ -226,7 +312,7 @@ int main() {
 
   // TODO: (KEITH) sweep_step (distance per step in sweep),
   // implement a parameter file
-  int sweep_step = 5;
+  // int sweep_step = 5;
 
   std::vector<std::vector<Point_2>> cells_sweeps;
 
@@ -277,7 +363,8 @@ int main() {
   //    for(size_t i = 0; i < cell_intersections.size(); ++i){
   //        for(auto j = cell_intersections[i].begin(); j !=
   //        cell_intersections[i].end(); ++j){
-  //            std::cout<<"cell "<<i<<" intersect with "<<"cell "<<j->first<<":
+  //            std::cout<<"cell "<<i<<" intersect with "<<"cell
+  //            "<<j->first<<":
   //            "; for(auto k = j->second.begin(); k != j->second.end(); ++k){
   //                std::cout<<"("<<CGAL::to_double(k->x())<<",
   //                "<<CGAL::to_double(k->y())<<")"<<" ";

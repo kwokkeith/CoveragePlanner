@@ -19,31 +19,44 @@
 
 #include <vector>
 
-#include "cgal_comm.h"
 #include "bcd.h"
-
+#include "cgal_comm.h"
 
 namespace polygon_coverage_planning {
 
-std::vector<Polygon_2> computeBCD(const PolygonWithHoles& polygon_in,
-                                  const Direction_2& dir) {
+std::vector<Polygon_2> computeBCD(const PolygonWithHoles &polygon_in,
+                                  const Direction_2 &dir) {
   // Rotate polygon to have direction aligned with x-axis.
   // TODO(rikba): Make this independent of rotation.
   PolygonWithHoles rotated_polygon = rotatePolygon(polygon_in, dir);
+
+  // std::cout << "Sorting polygon " << std::endl;
+
   sortPolygon(&rotated_polygon);
+
+  // std::cout << "simplifying polygon " << std::endl;
+
   simplifyPolygon(&rotated_polygon);
 
+  // std::cout << "Sorting vertices" << std::endl;
+
+  // TODO: This is the bottleneck
   // Sort vertices by x value.
   std::vector<VertexConstCirculator> sorted_vertices =
       getXSortedVertices(rotated_polygon);
+
+  // std::cout << "Vertices sorted" << std::endl;
 
   // Initialize edge list.
   std::list<Segment_2> L;
   std::list<Polygon_2> open_polygons;
   std::vector<Polygon_2> closed_polygons;
   std::vector<Point_2> processed_vertices;
+
+  // std::cout << "Sorted vertex size " << sorted_vertices.size() << std::endl;
+
   for (size_t i = 0; i < sorted_vertices.size(); ++i) {
-    const VertexConstCirculator& v = sorted_vertices[i];
+    const VertexConstCirculator &v = sorted_vertices[i];
     // v already processed.
     if (std::find(processed_vertices.begin(), processed_vertices.end(), *v) !=
         processed_vertices.end())
@@ -53,7 +66,7 @@ std::vector<Polygon_2> computeBCD(const PolygonWithHoles& polygon_in,
   }
 
   // Rotate back all polygons.
-  for (Polygon_2& p : closed_polygons) {
+  for (Polygon_2 &p : closed_polygons) {
     CGAL::Aff_transformation_2<K> rotation(CGAL::ROTATION, dir, 1, 1e9);
     p = CGAL::transform(rotation, p);
   }
@@ -61,8 +74,10 @@ std::vector<Polygon_2> computeBCD(const PolygonWithHoles& polygon_in,
   return closed_polygons;
 }
 
-std::vector<VertexConstCirculator> getXSortedVertices(
-    const PolygonWithHoles& p) {
+
+//TODO: Memory bottleneck
+std::vector<VertexConstCirculator>
+getXSortedVertices(const PolygonWithHoles &p) {
   std::vector<VertexConstCirculator> sorted_vertices;
 
   // Get boundary vertices.
@@ -81,19 +96,20 @@ std::vector<VertexConstCirculator> getXSortedVertices(
   // Sort x,y.
   Polygon_2::Traits::Less_xy_2 less_xy_2;
   std::sort(sorted_vertices.begin(), sorted_vertices.end(),
-            [&less_xy_2](const VertexConstCirculator& a,
-                         const VertexConstCirculator& b) -> bool {
+            [&less_xy_2](const VertexConstCirculator &a,
+                         const VertexConstCirculator &b) -> bool {
               return less_xy_2(*a, *b);
             });
 
   return sorted_vertices;
 }
 
-void processEvent(const PolygonWithHoles& pwh, const VertexConstCirculator& v,
-                  std::vector<VertexConstCirculator>* sorted_vertices,
-                  std::vector<Point_2>* processed_vertices,
-                  std::list<Segment_2>* L, std::list<Polygon_2>* open_polygons,
-                  std::vector<Polygon_2>* closed_polygons) {
+
+void processEvent(const PolygonWithHoles &pwh, const VertexConstCirculator &v,
+                  std::vector<VertexConstCirculator> *sorted_vertices,
+                  std::vector<Point_2> *processed_vertices,
+                  std::list<Segment_2> *L, std::list<Polygon_2> *open_polygons,
+                  std::vector<Polygon_2> *closed_polygons) {
 
   Polygon_2::Traits::Equal_2 eq_2;
 
@@ -117,7 +133,7 @@ void processEvent(const PolygonWithHoles& pwh, const VertexConstCirculator& v,
   Segment_2 e_lower = e_prev;
   Segment_2 e_upper = e_next;
   if (less_x_2(e_prev.target(), e_prev.source()) &&
-      less_x_2(e_next.target(), e_next.source())) {  // OUT
+      less_x_2(e_next.target(), e_next.source())) { // OUT
 
     Point_2 p_on_upper = eq_2(e_lower.source(), e_upper.source())
                              ? e_upper.target()
@@ -153,7 +169,8 @@ void processEvent(const PolygonWithHoles& pwh, const VertexConstCirculator& v,
       if (!eq_2(e_lower.source(), e_upper.source())) {
         cell->push_back(e_upper.source());
       }
-      if (cleanupPolygon(&*cell)) closed_polygons->push_back(*cell);
+      if (cleanupPolygon(&*cell))
+        closed_polygons->push_back(*cell);
       L->erase(e_lower_it);
       L->erase(e_upper_it);
       open_polygons->erase(cell);
@@ -165,13 +182,15 @@ void processEvent(const PolygonWithHoles& pwh, const VertexConstCirculator& v,
           std::next(open_polygons->begin(), lower_cell_id);
       lower_cell->push_back(intersections[e_lower_id - 1]);
       lower_cell->push_back(intersections[e_lower_id]);
-      if (cleanupPolygon(&*lower_cell)) closed_polygons->push_back(*lower_cell);
+      if (cleanupPolygon(&*lower_cell))
+        closed_polygons->push_back(*lower_cell);
       // Close upper cell.
       std::list<Polygon_2>::iterator upper_cell =
           std::next(open_polygons->begin(), upper_cell_id);
       upper_cell->push_back(intersections[e_upper_id]);
       upper_cell->push_back(intersections[e_upper_id + 1]);
-      if (cleanupPolygon(&*upper_cell)) closed_polygons->push_back(*upper_cell);
+      if (cleanupPolygon(&*upper_cell))
+        closed_polygons->push_back(*upper_cell);
 
       // Delete e_lower and e_upper from list.
       L->erase(e_lower_it);
@@ -207,7 +226,8 @@ void processEvent(const PolygonWithHoles& pwh, const VertexConstCirculator& v,
     size_t e_LOWER_id = 0;
     bool found_e_lower_id = false;
     for (size_t i = 0; i < intersections.size() - 1; i = i + 2) {
-      if (intersections.empty()) break;
+      if (intersections.empty())
+        break;
       if (open_one) {
         if (less_y_2(intersections[i], e_lower.source()) &&
             less_y_2(intersections[i + 1], e_upper.source())) {
@@ -268,7 +288,8 @@ void processEvent(const PolygonWithHoles& pwh, const VertexConstCirculator& v,
       // Close one cell.
       cell->push_back(intersections[e_LOWER_id]);
       cell->push_back(intersections[e_LOWER_id + 1]);
-      if (cleanupPolygon(&*cell)) closed_polygons->push_back(*cell);
+      if (cleanupPolygon(&*cell))
+        closed_polygons->push_back(*cell);
       // Open two new cells
       // Lower polygon.
       new_polygon->push_back(e_lower.source());
@@ -302,8 +323,10 @@ void processEvent(const PolygonWithHoles& pwh, const VertexConstCirculator& v,
             for (std::vector<VertexConstCirculator>::iterator it =
                      sorted_vertices->begin();
                  it != sorted_vertices->end(); ++it) {
-              if (*it == v) i_v = it;
-              if (*it == v_middle) i_v_middle = it;
+              if (*it == v)
+                i_v = it;
+              if (*it == v_middle)
+                i_v_middle = it;
             }
 
             std::iter_swap(i_v, i_v_middle);
@@ -360,8 +383,8 @@ void processEvent(const PolygonWithHoles& pwh, const VertexConstCirculator& v,
     processed_vertices->push_back(*v_middle);
   }
 }
-std::vector<Point_2> getIntersections(const std::list<Segment_2>& L,
-                                      const Line_2& l) {
+std::vector<Point_2> getIntersections(const std::list<Segment_2> &L,
+                                      const Line_2 &l) {
   typedef CGAL::cpp11::result_of<Intersect_2(Segment_2, Line_2)>::type
       Intersection;
 
@@ -374,27 +397,28 @@ std::vector<Point_2> getIntersections(const std::list<Segment_2>& L,
       if (boost::get<Segment_2>(&*result)) {
         *(intersection++) = it->target();
       } else {
-        const Point_2* p = boost::get<Point_2>(&*result);
+        const Point_2 *p = boost::get<Point_2>(&*result);
         *(intersection++) = *p;
       }
     } else {
-        std::cout<<"No intersection found!"<<std::endl;
+      std::cout << "No intersection found!" << std::endl;
     }
   }
 
   return intersections;
 }
 
-void sortPolygon(PolygonWithHoles* pwh) {
+void sortPolygon(PolygonWithHoles *pwh) {
   if (pwh->outer_boundary().is_clockwise_oriented())
     pwh->outer_boundary().reverse_orientation();
 
   for (PolygonWithHoles::Hole_iterator hi = pwh->holes_begin();
        hi != pwh->holes_end(); ++hi)
-    if (hi->is_counterclockwise_oriented()) hi->reverse_orientation();
+    if (hi->is_counterclockwise_oriented())
+      hi->reverse_orientation();
 }
 
-bool cleanupPolygon(Polygon_2* poly) {
+bool cleanupPolygon(Polygon_2 *poly) {
   Polygon_2::Traits::Equal_2 eq_2;
   bool erase_one = true;
   while (erase_one) {
@@ -412,8 +436,9 @@ bool cleanupPolygon(Polygon_2* poly) {
   return poly->is_simple() && poly->area() != 0.0;
 }
 
-bool outOfPWH(const PolygonWithHoles& pwh, const Point_2& p) {
-  if (pwh.outer_boundary().has_on_unbounded_side(p)) return true;
+bool outOfPWH(const PolygonWithHoles &pwh, const Point_2 &p) {
+  if (pwh.outer_boundary().has_on_unbounded_side(p))
+    return true;
 
   for (PolygonWithHoles::Hole_const_iterator hit = pwh.holes_begin();
        hit != pwh.holes_end(); ++hit) {
@@ -425,4 +450,4 @@ bool outOfPWH(const PolygonWithHoles& pwh, const Point_2& p) {
   return false;
 }
 
-}  // namespace polygon_coverage_planning
+} // namespace polygon_coverage_planning
