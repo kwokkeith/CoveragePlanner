@@ -1,4 +1,5 @@
 #include "coverage_planner.h"
+#include <chrono>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -9,6 +10,7 @@
 
 #define PARAMETER_FILE_PATH "../config/params.config"
 #define WAYPOINT_COORDINATE_FILE_PATH "../result/waypoints.txt"
+#define EXTERNAL_POLYGON_FILE_PATH "../result/ext_polygon_coord.txt"
 
 std::string image_path;
 uint robot_width;
@@ -21,13 +23,6 @@ bool show_cells;
 bool LoadParameters() {
   // Load parameters from config file
   std::ifstream in(PARAMETER_FILE_PATH);
-
-  // Check if there is any error opening parameter file
-  if (!in.is_open()) {
-    std::cout << "Error: Cannot open parameters file from "
-              << PARAMETER_FILE_PATH << ": " << strerror(errno) << std::endl;
-    return false;
-  }
 
   std::string param;
 
@@ -103,7 +98,7 @@ int main() {
   //  Applied after the above erosion kernel to enhance image
   //  Can use MORPH_RECT, MORPH_ELLIPSE
   cv::Mat open_kernel = cv::getStructuringElement(
-      cv::MORPH_ELLIPSE, cv::Size(open_kernel_width, open_kernel_height),
+      cv::MORPH_RECT, cv::Size(open_kernel_width, open_kernel_height),
       cv::Point(-1, -1));
   cv::morphologyEx(img_, img_, cv::MORPH_OPEN, open_kernel);
   std::cout << "Open Kernel applied" << std::endl;
@@ -179,6 +174,8 @@ int main() {
     cv::drawContours(poly_img, polys, i, cv::Scalar(0, 0, 0));
   }
 
+  // Extract the vertices of the external Polygons
+
   //    cv::imshow("only polygons", poly_img);
   //    cv::waitKey();
 
@@ -216,6 +213,9 @@ int main() {
   int main_deg = (it - line_deg_histogram.begin());
   std::cout << "main deg: " << main_deg << std::endl;
 
+  // file stream to write external polygon vertices to
+  std::ofstream out_ext_poly(EXTERNAL_POLYGON_FILE_PATH);
+
   // construct polygon with holes
 
   std::vector<cv::Point> outer_poly = polys.front();
@@ -223,9 +223,15 @@ int main() {
   std::vector<std::vector<cv::Point>> inner_polys = polys;
 
   Polygon_2 outer_polygon;
+  out_ext_poly << outer_poly.size() << std::endl;
+
   for (const auto &point : outer_poly) {
     outer_polygon.push_back(Point_2(point.x, point.y));
+    out_ext_poly << point.x << " " << point.y << std::endl;
   }
+
+  // close the file stream
+  out_ext_poly.close();
 
   int num_holes = inner_polys.size();
   std::vector<Polygon_2> holes(num_holes);
@@ -242,6 +248,10 @@ int main() {
   // cell decomposition
   // TODO: Bottleneck for memory space
 
+  std::cout << "Performing cell decomposition" << std::endl;
+
+  // To measure the time it takes to execute cell decomposition
+  auto start_time = std::chrono::high_resolution_clock::now();
   std::vector<Polygon_2> bcd_cells;
 
   //    polygon_coverage_planning::computeBestTCDFromPolygonWithHoles(pwh,
@@ -249,7 +259,12 @@ int main() {
   polygon_coverage_planning::computeBestBCDFromPolygonWithHoles(pwh,
                                                                 &bcd_cells);
 
-  std::cout << "Cell decomposition complete" << std::endl;
+  auto end_time = std::chrono::high_resolution_clock::now();
+  auto execution_time = std::chrono::duration_cast<std::chrono::microseconds>(
+      end_time - start_time);
+  long double ms = execution_time.count();
+  long double s = ms / 1000000;
+  std::cout << "Cell decomposition complete in " << s << "s" << std::endl;
 
   // test decomposition
   if (show_cells) {
