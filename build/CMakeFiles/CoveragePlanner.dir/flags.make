@@ -6,7 +6,7 @@ CXX_DEFINES = -DCGAL_USE_CORE=1 -DCGAL_USE_GMPXX=1
 
 CXX_INCLUDES = -I/Users/pe3nu7/Documents/SUTD/Capstone/Codes/CoveragePlanner/include -isystem /opt/homebrew/Cellar/opencv/4.10.0_4/include/opencv4 -isystem /opt/homebrew/include
 
-CXX_FLAGSarm64 = -O3 -DNDEBUG -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk
+CXX_FLAGSarm64 = -O3 -DNDEBUG -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk -mmacosx-version-min=14.6
 
-CXX_FLAGS = -O3 -DNDEBUG -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk
+CXX_FLAGS = -O3 -DNDEBUG -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk -mmacosx-version-min=14.6
 
