@@ -122,7 +122,7 @@ int main() {
   std::vector<std::vector<cv::Point>> cnts;
   std::vector<cv::Vec4i> hierarchy; // index: next, prev, first_child, parent
   cv::findContours(img_, cnts, hierarchy, cv::RETR_TREE,
-                   cv::CHAIN_APPROX_SIMPLE);
+                    cv::CHAIN_APPROX_SIMPLE);
 
   std::vector<int> cnt_indices(cnts.size());
   std::iota(cnt_indices.begin(), cnt_indices.end(), 0);
@@ -177,7 +177,7 @@ int main() {
   // Extract the vertices of the external Polygons
 
   //    cv::imshow("only polygons", poly_img);
-  //    cv::waitKey();
+  //    cv::waitKey();/your-docusaurus-site.example.com
 
   // compute main direction
 

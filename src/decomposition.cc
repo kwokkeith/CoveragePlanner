@@ -21,6 +21,8 @@
 #include "bcd.h"
 #include "tcd.h"
 #include "weakly_monotone.h"
+#include <thread>
+#include <mutex>
 
 namespace polygon_coverage_planning {
 
@@ -30,6 +32,7 @@ std::vector<Direction_2> findEdgeDirections(const PolygonWithHoles &pwh) {
   for (size_t i = 0; i < pwh.outer_boundary().size(); ++i) {
     directions.push_back(pwh.outer_boundary().edge(i).direction());
   }
+  
   for (PolygonWithHoles::Hole_const_iterator hit = pwh.holes_begin();
        hit != pwh.holes_end(); ++hit) {
     for (size_t i = 0; i < hit->size(); i++) {
@@ -47,7 +50,7 @@ std::vector<Direction_2> findEdgeDirections(const PolygonWithHoles &pwh) {
     }
   }
   for (std::set<size_t>::reverse_iterator rit = to_remove.rbegin();
-       rit != to_remove.rend(); ++rit) {
+      rit != to_remove.rend(); ++rit) {
     directions.erase(std::next(directions.begin(), *rit));
   }
 
@@ -101,34 +104,95 @@ bool computeBestBCDFromPolygonWithHoles(const PolygonWithHoles &pwh,
                                         std::vector<Polygon_2> *bcd_polygons) {
   bcd_polygons->clear();
   double min_altitude_sum = std::numeric_limits<double>::max();
+  std::mutex mtx; // Mutex to access shared variables (min_altitude_sum, bcd_polygons)
 
   // Get all possible decomposition directions.
   std::vector<Direction_2> directions = findPerpEdgeDirections(pwh);
 
-  // For all possible rotations:
-  for (const auto &dir : directions) {
-    // std::cout << "Performing calculation for " << dir << std::endl;
+  // Get number of CPU cores
+  unsigned int num_threads = std::thread::hardware_concurrency();
+  std::cout << "Number of threads detected: " << num_threads << std::endl;
+  if (num_threads == 0) num_threads = 1; // Default
 
-    // Calculate decomposition.
-    std::vector<Polygon_2> cells = computeBCD(pwh, dir);
+  // If directions.size() < num_threads then spawn only directions.size() threads
+  num_threads = std::min(num_threads, static_cast<unsigned int>(directions.size()));
+  size_t chunk_size = directions.size() / num_threads;
+  std::vector<std::thread> threads;
 
-    // Calculate minimum altitude sum for each cell.
-    double min_altitude_sum_tmp = 0.0;
-    for (const auto &cell : cells) {
-      min_altitude_sum_tmp += findBestSweepDir(cell);
-    }
+  // Threading to solve for chunks
+  auto computeChunk = [&](size_t start, size_t end) {
+      // Each thread computes a chunk of directions
+      double local_min_altitude_sum = std::numeric_limits<double>::max();
+      std::vector<Polygon_2> local_best_bcd;
 
-    // Update best decomposition.
-    if (min_altitude_sum_tmp < min_altitude_sum) {
-      min_altitude_sum = min_altitude_sum_tmp;
-      *bcd_polygons = cells;
-    }
+      for (size_t i = start; i < end; ++i) {
+          const Direction_2& dir = directions[i];
+          std::vector<Polygon_2> cells = computeBCD(pwh, dir);
+
+          double min_altitude_sum_tmp = 0.0;
+          for (const auto& cell : cells) {
+              min_altitude_sum_tmp += findBestSweepDir(cell);
+          }
+
+          // Update the local best result for this thread
+          if (min_altitude_sum_tmp < local_min_altitude_sum) {
+              local_min_altitude_sum = min_altitude_sum_tmp;
+              local_best_bcd = cells;
+          }
+      }
+
+      // Update global result using shared variable 
+      std::lock_guard<std::mutex> lock(mtx);
+      if (local_min_altitude_sum < min_altitude_sum) {
+          min_altitude_sum = local_min_altitude_sum;
+          *bcd_polygons = std::move(local_best_bcd);
+      }
+  };
+
+  //Create threads to compute chunks of directions
+  for (size_t i = 0; i < num_threads; ++i) {
+      size_t start = i * chunk_size;
+      // To handle case where directions.size() not divisible by number of threads
+      // Last thread would handle to direction.size()
+      size_t end = (i == num_threads - 1) ? directions.size() : start + chunk_size;
+
+      threads.emplace_back(computeChunk, start, end);
   }
 
-  if (bcd_polygons->empty())
+  // Join all the threads
+  for (auto& thread : threads) {
+      thread.join();
+  }
+  
+  if (bcd_polygons -> empty())
     return false;
   else
     return true;
+
+  // // For all possible rotations:
+  // for (const auto &dir : directions) {
+  //   // std::cout << "Performing calculation for " << dir << std::endl;
+
+  //   // Calculate decomposition.
+  //   std::vector<Polygon_2> cells = computeBCD(pwh, dir);
+
+  //   // Calculate minimum altitude sum for each cell.
+  //   double min_altitude_sum_tmp = 0.0;
+  //   for (const auto &cell : cells) {
+  //     min_altitude_sum_tmp += findBestSweepDir(cell);
+  //   }
+
+  //   // Update best decomposition.
+  //   if (min_altitude_sum_tmp < min_altitude_sum) {
+  //     min_altitude_sum = min_altitude_sum_tmp;
+  //     *bcd_polygons = cells;
+  //   }
+  // }
+
+  // if (bcd_polygons->empty())
+  //   return false;
+  // else
+  //   return true;
 }
 
 bool computeBestTCDFromPolygonWithHoles(const PolygonWithHoles &pwh,
