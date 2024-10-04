@@ -19,6 +19,7 @@ uint open_kernel_width;
 uint open_kernel_height;
 int sweep_step;
 bool show_cells;
+bool mouse_select_start;
 
 bool LoadParameters() {
   // Load parameters from config file
@@ -42,6 +43,9 @@ bool LoadParameters() {
     } else if (param == "SHOW_CELLS") {
       std::string show_cells_str;
       in >> show_cells;
+    } else if (param == "MOUSE_SELECT_START") {
+      std::string mouse_select_start_str;
+      in >> mouse_select_start;
     }
   }
   in.close();
@@ -55,6 +59,7 @@ bool LoadParameters() {
             << " " << open_kernel_height << std::endl;
   std::cout << "sweep_step: " << sweep_step << std::endl;
   std::cout << "show_cells: " << show_cells << std::endl;
+  std::cout << "mouse_select_start: " << mouse_select_start << std::endl;
 
   return true;
 }
@@ -317,11 +322,20 @@ int main() {
   //      std::cout<<std::endl;
   //  }
 
-  std::cout << "Select starting point" << std::endl;
+  
 
-  Point_2 start = getStartingPoint(img);
+  // Get starting point from mouse click
+  Point_2 start;
+  if (mouse_select_start) {
+    std::cout << "Select starting point" << std::endl;
+    start = getStartingPoint(img);
+  } else {
+    start = Point_2(2000, 1998);
+    std::cout << "Starting point configured: (" << start.x() << ", " << start.y() << ")" << std::endl;
+  }
+
   int starting_cell_idx = getCellIndexOfPoint(bcd_cells, start);
-  auto cell_idx_path = getTravellingPath(cell_graph, starting_cell_idx);
+  auto cell_idx_path = getTravellingPath(cell_graph, starting_cell_idx) ;
   std::cout << "path length: " << cell_idx_path.size() << std::endl;
   std::cout << "start";
   for (auto &cell_idx : cell_idx_path) {
@@ -529,11 +543,11 @@ int main() {
 
     // Write waypoints to a file (to be fed as coordinates for robot)
     if (i == 1) {
-      out << "(" << p1.x << "," << p1.y << ")" << std::endl;
+      out << p1.x << " " << p1.y << std::endl;
     }
     // For all other points we will just use p2,
     // we do not pass both p1 and p2 as it would duplicate the points
-    out << "(" << p2.x << "," << p2.y << ")" << std::endl;
+    out << p2.x << " " << p2.y << std::endl;
   }
   out.close();
 

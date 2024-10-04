@@ -7,7 +7,9 @@
                 "/opt/homebrew/Cellar/cgal/5.6.1/include",
                 "/opt/homebrew/Cellar/opencv/4.10.0_4/include/opencv4",
                 "${workspaceFolder}/include/*",
-                "/opt/homebrew/include"
+                "/usr/",
+                "/opt/homebrew/include",
+                "/usr/include/opencv4"
             ],
             "defines": [],
             "macFrameworkPath": [
