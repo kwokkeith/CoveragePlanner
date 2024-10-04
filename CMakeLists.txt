@@ -26,5 +26,6 @@ target_link_libraries(CoveragePlanner
         ${OpenCV_LIBS}
         CGAL::CGAL
         CGAL::CGAL_Core
+        pthread  # Link pthread correctly here
         )
 
