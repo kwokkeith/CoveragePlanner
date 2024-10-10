@@ -20,6 +20,8 @@ uint open_kernel_height;
 int sweep_step;
 bool show_cells;
 bool mouse_select_start;
+uint start_x;
+uint start_y;
 
 bool LoadParameters() {
   // Load parameters from config file
@@ -46,6 +48,9 @@ bool LoadParameters() {
     } else if (param == "MOUSE_SELECT_START") {
       std::string mouse_select_start_str;
       in >> mouse_select_start;
+    } else if (param == "START_POS") {
+      in >> start_x;
+      in >> start_y;
     }
   }
   in.close();
@@ -330,7 +335,7 @@ int main() {
     std::cout << "Select starting point" << std::endl;
     start = getStartingPoint(img);
   } else {
-    start = Point_2(2000, 1998);
+    start = Point_2(start_x, start_y);
     std::cout << "Starting point configured: (" << start.x() << ", " << start.y() << ")" << std::endl;
   }
 
