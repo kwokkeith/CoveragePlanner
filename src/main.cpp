@@ -17,11 +17,14 @@ uint robot_width;
 uint robot_height;
 uint open_kernel_width;
 uint open_kernel_height;
+uint dilate_kernel_width;
+uint dilate_kernel_height;
 int sweep_step;
 bool show_cells;
 bool mouse_select_start;
 uint start_x;
 uint start_y;
+uint subdivisions;
 
 bool LoadParameters() {
   // Load parameters from config file
@@ -40,6 +43,9 @@ bool LoadParameters() {
     } else if (param == "MORPH_SIZE") {
       in >> open_kernel_width;
       in >> open_kernel_height;
+    } else if (param == "OBSTACLE_INFLATION") {
+      in >> dilate_kernel_width;
+      in >> dilate_kernel_height;
     } else if (param == "SWEEP_STEP") {
       in >> sweep_step;
     } else if (param == "SHOW_CELLS") {
@@ -51,6 +57,8 @@ bool LoadParameters() {
     } else if (param == "START_POS") {
       in >> start_x;
       in >> start_y;
+    } else if (param == "PATH_SUBDIVISION") { // Ensure finer waypoints for ros navstack
+      in >> subdivisions;
     }
   }
   in.close();
@@ -92,8 +100,6 @@ int main() {
   cv::threshold(img_, img_, 250, 255, 0);
 
   // Robot radius (Size) is defined here
-  // Seems to have a minimum size of (4, 4)
-
   std::cout << "--Applying morphological operations onto image--" << std::endl;
 
   // Makes kernel in an ellipse shape of a certain size
@@ -112,6 +118,21 @@ int main() {
       cv::Point(-1, -1));
   cv::morphologyEx(img_, img_, cv::MORPH_OPEN, open_kernel);
   std::cout << "Open Kernel applied" << std::endl;
+
+  // To inflate the obstacles on the map
+  // Invert the image so that black walls become white
+  std::cout << "--Inverting the image to apply dilation on black walls--" << std::endl;
+  cv::bitwise_not(img_, img_);  // Invert the image
+
+  // Inflate the walls (now white) by dilating them
+  std::cout << "--Inflating walls by dilating the obstacles--" << std::endl;
+  cv::Mat dilation_kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(dilate_kernel_width, dilate_kernel_height), cv::Point(-1, -1));
+  cv::dilate(img_, img_, dilation_kernel);
+  std::cout << "Dilation applied to inflate the walls" << std::endl;
+
+  // Invert the image back to original (black walls)
+  std::cout << "--Reverting the image back to original (black walls)--" << std::endl;
+  cv::bitwise_not(img_, img_);  // Invert the image back
 
   // TODO: SECOND RUN OF Preprocessing if needed
 
@@ -540,7 +561,29 @@ int main() {
                    CGAL::to_double(way_points[i - 1].y()));
     p2 = cv::Point(CGAL::to_double(way_points[i].x()),
                    CGAL::to_double(way_points[i].y()));
-    cv::line(img, p1, p2, cv::Scalar(0, 64, 255));
+    
+    // Subdivide between p1 and p2
+    std::vector<cv::Point> newPoints;
+
+    // Compute the step increments based on the number of subdivisions
+    double stepX = (p2.x - p1.x) / (subdivisions + 1);
+    double stepY = (p2.y - p1.y) / (subdivisions + 1);
+
+    // Add intermediate points
+    for (int i = 1; i <= subdivisions; ++i) {
+        cv::Point intermediatePoint;
+        intermediatePoint.x = p1.x + stepX * i;
+        intermediatePoint.y = p1.y + stepY * i;
+        newPoints.push_back(intermediatePoint);
+    }
+
+    // Draw the initial line segment from p1 to the first interpolated point
+    cv::line(img, p1, newPoints[0], cv::Scalar(0, 64, 255));
+    for (size_t j = 0; j < newPoints.size() - 1; ++j) {
+        cv::line(img, newPoints[j], newPoints[j + 1], cv::Scalar(0, 64, 255));  // Draw between subdivided points
+    }
+    cv::line(img, newPoints.back(), p2, cv::Scalar(0, 64, 255));  // Draw final segment to p2
+
     cv::namedWindow("cover", cv::WINDOW_NORMAL);
     cv::imshow("cover", img);
     //        cv::waitKey(50);
@@ -548,8 +591,12 @@ int main() {
 
     // Write waypoints to a file (to be fed as coordinates for robot)
     if (i == 1) {
-      out << p1.x << " " << p1.y << std::endl;
+        out << p1.x << " " << p1.y << std::endl;
     }
+    for (const auto& point : newPoints) {
+        out << point.x << " " << point.y << std::endl;
+    }
+
     // For all other points we will just use p2,
     // we do not pass both p1 and p2 as it would duplicate the points
     out << p2.x << " " << p2.y << std::endl;

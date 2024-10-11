@@ -1,3 +1,0 @@
-/home/keith/Documents/Capstone/Tools/CoveragePlanner/CMakeFiles/rebuild_cache.dir
-/home/keith/Documents/Capstone/Tools/CoveragePlanner/CMakeFiles/edit_cache.dir
-/home/keith/Documents/Capstone/Tools/CoveragePlanner/CMakeFiles/CoveragePlanner.dir
