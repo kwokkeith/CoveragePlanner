@@ -22,6 +22,7 @@ uint dilate_kernel_height;
 int sweep_step;
 bool show_cells;
 bool mouse_select_start;
+bool manual_orientation;
 uint start_x;
 uint start_y;
 uint subdivisions;
@@ -59,6 +60,9 @@ bool LoadParameters() {
       in >> start_y;
     } else if (param == "PATH_SUBDIVISION") { // Ensure finer waypoints for ros navstack
       in >> subdivisions;
+    } else if (param == "MANUAL_ORIENTATION") {
+      // Allow user to define the orientation for each polygon 
+      in >> manual_orientation;
     }
   }
   in.close();
@@ -319,36 +323,8 @@ int main() {
     cv::imshow("bcd", poly_img);
     cv::waitKey();
   }
-  // construct adjacent graph
-  //  std::map<size_t, std::set<size_t>> cell_graph;
-  //  bool succeed = calculateDecompositionAdjacency(bcd_cells, &cell_graph);
-
-  //  if(succeed){
-  //      std::cout<<"cell graph was constructed"<<std::endl;
-  //  }else{
-  //      std::cout<<"cell graph wasn't constructed"<<std::endl;
-  //  }
-
-  //  for(auto cell_it=cell_graph.begin(); cell_it!=cell_graph.end();
-  //  cell_it++){
-  //      std::cout<<"cell "<<cell_it->first<<" 's neighbors: "<<std::endl;
-  //      for(auto it=cell_it->second.begin(); it!=cell_it->second.end();
-  //      it++){
-  //          std::cout<<*it<<" ";
-  //      }
-  //      std::cout<<std::endl<<std::endl;
-  //  }
 
   auto cell_graph = calculateDecompositionAdjacency(bcd_cells);
-  //  for(auto& cell:cell_graph){
-  //      std::cout<<"cell "<<cell.cellIndex<<" 's neighbors: "<<std::endl;
-  //      for(auto& neighbor:cell.neighbor_indices){
-  //          std::cout<<neighbor<<" "<<std::endl;
-  //      }
-  //      std::cout<<std::endl;
-  //  }
-
-  
 
   // Get starting point from mouse click
   Point_2 start;
@@ -367,69 +343,126 @@ int main() {
   for (auto &cell_idx : cell_idx_path) {
     std::cout << "->" << cell_idx;
   }
+  std::cout << std::endl;
 
   // sweep_step (distance per step in sweep),
   // int sweep_step = 5;
-
   std::vector<std::vector<Point_2>> cells_sweeps;
+  
+  if (manual_orientation) {
+    // Store user-defined angles for sweep direction
+    std::vector<double> polygon_sweep_directions;
 
-  for (size_t i = 0; i < bcd_cells.size(); ++i) {
-    // Compute all cluster sweeps.
-    std::vector<Point_2> cell_sweep;
-    Direction_2 best_dir;
-    polygon_coverage_planning::findBestSweepDir(bcd_cells[i], &best_dir);
-    polygon_coverage_planning::visibility_graph::VisibilityGraph vis_graph(
-        bcd_cells[i]);
+    // Create a named window to show the polygon
+    cv::namedWindow("Selected Polygon", cv::WINDOW_NORMAL);
 
-    bool counter_clockwise = true;
-    polygon_coverage_planning::computeSweep(bcd_cells[i], vis_graph, sweep_step,
-                                            best_dir, counter_clockwise,
-                                            &cell_sweep);
-    cells_sweeps.emplace_back(cell_sweep);
+    for (size_t i = 0; i < bcd_cells.size(); ++i) {
+      // Display the polygon to the user using OpenCV as before.
+      cv::Mat img_copy = img.clone();  // Create a copy of the image
+      std::vector<std::vector<cv::Point>> poly_contours;
+
+      // Extract the points of the current polygon
+      std::vector<cv::Point> current_polygon;
+      for (int j = 0; j < bcd_cells[i].size(); ++j) {
+          current_polygon.push_back(cv::Point(CGAL::to_double(bcd_cells[i][j].x()), 
+                                              CGAL::to_double(bcd_cells[i][j].y())));
+      }
+      poly_contours.push_back(current_polygon);
+      
+      // Draw the current polygon on the copied image
+      cv::drawContours(img_copy, poly_contours, -1, cv::Scalar(0, 255, 0), 2);
+      cv::imshow("Polygon Selection", img_copy);
+      cv::waitKey(500);  // Allow the user to see the polygon
+
+      // Compute best sweep direction
+      Direction_2 best_sweep_dir;
+      double min_altitude = polygon_coverage_planning::findBestSweepDir(bcd_cells[i], &best_sweep_dir);
+
+      // Ensure valid sweep direction
+      if (std::isnan(CGAL::to_double(best_sweep_dir.dx())) || std::isnan(CGAL::to_double(best_sweep_dir.dy()))) {
+        std::cerr << "Invalid best sweep direction detected for polygon " << i << std::endl;
+        continue;  // Skip this polygon if sweep direction is invalid
+      }
+
+      // Convert best sweep direction to degrees
+      double best_sweep_angle = std::atan2(CGAL::to_double(best_sweep_dir.dy()), CGAL::to_double(best_sweep_dir.dx())) * 180.0 / M_PI;
+      std::cout << "Best sweep direction for polygon " << i + 1 << " is: " << best_sweep_angle << " degrees" << std::endl;
+
+      // Prompt user to enter custom angle or use the best one
+      std::cout << "Enter sweep direction (degrees) for polygon " << i + 1
+                << " (or press Enter to use best sweep direction): ";
+
+      // Capture the user input, expecting a newline after entry
+      std::string input;
+      std::getline(std::cin, input);  // Get the user input for the sweep direction
+
+      double user_angle;
+      try {
+        if (input.empty()) {
+            user_angle = best_sweep_angle;  // Use best sweep direction if no input
+        } else {
+            user_angle = std::stod(input);  // Use user input
+        }
+      } catch (const std::invalid_argument& e) {
+        std::cerr << "Invalid input for angle. Using best sweep angle for polygon " << i << std::endl;
+        user_angle = best_sweep_angle;  // Fallback to best sweep angle
+      }
+
+      polygon_sweep_directions.push_back(user_angle);
+    }
+
+    // Execute sweep for each polygon using the user-defined or best direction
+    for (size_t i = 0; i < bcd_cells.size(); ++i) {
+      std::vector<Point_2> cell_sweep;
+
+      // Convert the user-defined angle to radians
+      double angle_in_radians = polygon_sweep_directions[i] * (M_PI / 180.0);
+
+      // Ensure valid direction vectors
+      if (std::isnan(std::cos(angle_in_radians)) || std::isnan(std::sin(angle_in_radians))) {
+        std::cerr << "Invalid sweep direction for polygon " << i << ". Using default direction." << std::endl;
+        continue;  // Skip this polygon if the direction is invalid
+      }
+
+      // Create direction from the angle
+      Direction_2 user_defined_dir(std::cos(angle_in_radians), std::sin(angle_in_radians));
+
+      // Perform sweep using the user-defined direction
+      polygon_coverage_planning::visibility_graph::VisibilityGraph vis_graph(bcd_cells[i]);
+
+      try {
+        polygon_coverage_planning::computeSweep(bcd_cells[i], vis_graph, sweep_step, user_defined_dir, true, &cell_sweep);
+
+        if (cell_sweep.empty()) {
+            std::cerr << "Warning: Sweep for polygon " << i + 1 << " returned no points." << std::endl;
+        } else {
+            std::cout << "Successfully constructed sweep for polygon " << i + 1 << std::endl;
+        }
+
+        cells_sweeps.emplace_back(cell_sweep);
+
+      } catch (const std::exception& e) {
+        std::cerr << "Error constructing sweep for polygon " << i + 1 << ": " << e.what() << std::endl;
+      }
+    }
+  } else {
+    for (size_t i = 0; i < bcd_cells.size(); ++i) {
+      // Compute all cluster sweeps.
+      std::vector<Point_2> cell_sweep;
+      Direction_2 best_dir;
+      polygon_coverage_planning::findBestSweepDir(bcd_cells[i], &best_dir);
+      polygon_coverage_planning::visibility_graph::VisibilityGraph vis_graph(
+          bcd_cells[i]);
+
+      bool counter_clockwise = true;
+      polygon_coverage_planning::computeSweep(bcd_cells[i], vis_graph, sweep_step,
+                                              best_dir, counter_clockwise,
+                                              &cell_sweep);
+      cells_sweeps.emplace_back(cell_sweep);
+    }
   }
 
-  //    cv::Point prev, curr;
-  //    cv::Mat poly_img_ = poly_img.clone();
-  //    for(size_t i = 0; i < cells_sweeps.size(); ++i){
-  //        for(size_t j = 1; j < cells_sweeps[i].size(); ++j){
-  //            prev =
-  //            cv::Point(CGAL::to_double(cells_sweeps[i][j-1].x()),CGAL::to_double(cells_sweeps[i][j-1].y()));
-  //            curr =
-  //            cv::Point(CGAL::to_double(cells_sweeps[i][j].x()),CGAL::to_double(cells_sweeps[i][j].y()));
-  //            cv::line(poly_img_, prev, curr, cv::Scalar(0, 0, 255));
-  //            cv::namedWindow("way",cv::WINDOW_NORMAL);
-  //            cv::imshow("way", poly_img_);
-  //            cv::waitKey(0);
-  //        }
-  //        poly_img_ = poly_img.clone();
-  //    }
-  //    cv::waitKey(0);
-
-  //    for(int i = 0; i < cell_path.size(); i++){
-  //        cv::drawContours(poly_img, bcd_polys, cell_path[i].cellIndex,
-  //        cv::Scalar(0, 255, 255)); cv::namedWindow("path cell",
-  //        cv::WINDOW_NORMAL); cv::imshow("path cell", poly_img);
-  //        cv::waitKey(500);
-  //        cv::drawContours(poly_img, bcd_polys, cell_path[i].cellIndex,
-  //        cv::Scalar(0, 0, 255));
-  //    }
-  //    cv::waitKey();
-
   auto cell_intersections = calculateCellIntersections(bcd_cells, cell_graph);
-
-  //    for(size_t i = 0; i < cell_intersections.size(); ++i){
-  //        for(auto j = cell_intersections[i].begin(); j !=
-  //        cell_intersections[i].end(); ++j){
-  //            std::cout<<"cell "<<i<<" intersect with "<<"cell
-  //            "<<j->first<<":
-  //            "; for(auto k = j->second.begin(); k != j->second.end(); ++k){
-  //                std::cout<<"("<<CGAL::to_double(k->x())<<",
-  //                "<<CGAL::to_double(k->y())<<")"<<" ";
-  //            }
-  //            std::cout<<std::endl;
-  //        }
-  //        std::cout<<std::endl<<std::endl;
-  //    }
 
   std::vector<Point_2> way_points;
 
@@ -556,33 +589,44 @@ int main() {
   // Open waypoint file to write coordinates
   std::ofstream out(WAYPOINT_COORDINATE_FILE_PATH);
 
-  for (size_t i = 1; i < way_points.size(); ++i) {
-    p1 = cv::Point(CGAL::to_double(way_points[i - 1].x()),
-                   CGAL::to_double(way_points[i - 1].y()));
-    p2 = cv::Point(CGAL::to_double(way_points[i].x()),
-                   CGAL::to_double(way_points[i].y()));
-    
-    // Subdivide between p1 and p2
+for (size_t i = 1; i < way_points.size(); ++i) {
+    cv::Point p1 = cv::Point(std::round(CGAL::to_double(way_points[i - 1].x())),
+                                 std::round(CGAL::to_double(way_points[i - 1].y())));
+    cv::Point p2 = cv::Point(std::round(CGAL::to_double(way_points[i].x())),
+                                 std::round(CGAL::to_double(way_points[i].y())));
+
+    // Ensure p1 and p2 are within valid bounds
+    if (std::isnan(p1.x) || std::isnan(p1.y) || std::isnan(p2.x) || std::isnan(p2.y)) {
+        std::cerr << "Invalid points detected: p1(" << p1.x << ", " << p1.y 
+                  << ") p2(" << p2.x << ", " << p2.y << ")" << std::endl;
+        continue;  // Skip this iteration if invalid points are found
+    }
+
     std::vector<cv::Point> newPoints;
 
-    // Compute the step increments based on the number of subdivisions
-    double stepX = (p2.x - p1.x) / (subdivisions + 1);
-    double stepY = (p2.y - p1.y) / (subdivisions + 1);
+    if (subdivisions > 0) {
+      // Compute the step increments based on the number of subdivisions
+      double stepX = (p2.x - p1.x) / static_cast<double>(subdivisions + 1);
+      double stepY = (p2.y - p1.y) / static_cast<double>(subdivisions + 1);
 
-    // Add intermediate points
-    for (int i = 1; i <= subdivisions; ++i) {
-        cv::Point intermediatePoint;
-        intermediatePoint.x = p1.x + stepX * i;
-        intermediatePoint.y = p1.y + stepY * i;
-        newPoints.push_back(intermediatePoint);
-    }
+      // Add intermediate points
+      for (int i = 1; i <= subdivisions; ++i) {
+          cv::Point intermediatePoint;
+          intermediatePoint.x = std::round(p1.x + stepX * i);
+          intermediatePoint.y = std::round(p1.y + stepY * i);
+          newPoints.push_back(intermediatePoint);
+      }
 
-    // Draw the initial line segment from p1 to the first interpolated point
-    cv::line(img, p1, newPoints[0], cv::Scalar(0, 64, 255));
-    for (size_t j = 0; j < newPoints.size() - 1; ++j) {
-        cv::line(img, newPoints[j], newPoints[j + 1], cv::Scalar(0, 64, 255));  // Draw between subdivided points
+      // Draw the initial line segment from p1 to the first interpolated point
+      cv::line(img, p1, newPoints[0], cv::Scalar(0, 64, 255));
+      for (size_t j = 0; j < newPoints.size() - 1; ++j) {
+          cv::line(img, newPoints[j], newPoints[j + 1], cv::Scalar(0, 64, 255));  // Draw between subdivided points
+      }
+      cv::line(img, newPoints.back(), p2, cv::Scalar(0, 64, 255));  // Draw final segment to p2
+    } else {
+      // If subdivisions == 0, directly draw the line between p1 and p2
+        cv::line(img, p1, p2, cv::Scalar(0, 64, 255));
     }
-    cv::line(img, newPoints.back(), p2, cv::Scalar(0, 64, 255));  // Draw final segment to p2
 
     cv::namedWindow("cover", cv::WINDOW_NORMAL);
     cv::imshow("cover", img);

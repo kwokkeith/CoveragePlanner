@@ -31,15 +31,19 @@ bool computeSweep(const Polygon_2 &in,
   const FT kSqOffset = offset * offset;
 
   // Assertions.
-  // TODO(rikba): Check monotone perpendicular to dir.
-  if (!in.is_counterclockwise_oriented())
+  if (!in.is_counterclockwise_oriented()) {
+    std::cerr << "Polygon is not counterclockwise oriented." << std::endl;
     return false;
+  }
 
-  // Find start sweep.
-  Line_2 sweep(Point_2(0.0, 0.0), dir);
-  std::vector<Point_2> sorted_pts = sortVerticesToLine(in, sweep);
+  // Initialize the sweep line using the custom direction
+  Line_2 sweep(Point_2(0.0, 0.0), dir);  // Custom direction used here
+  std::vector<Point_2> sorted_pts = sortVerticesToLine(in, sweep); // Sorting vertices to line based on custom direction
+
+  // Start the sweep with the first sorted point
   sweep = Line_2(sorted_pts.front(), dir);
-  // rotate sweep by 90 degree
+
+  // Offset the sweep direction
   Vector_2 offset_vector = sweep.perpendicular(sorted_pts.front()).to_vector();
   offset_vector = offset * offset_vector /
                   std::sqrt(CGAL::to_double(offset_vector.squared_length()));
@@ -47,71 +51,73 @@ bool computeSweep(const Polygon_2 &in,
 
   Segment_2 sweep_segment;
   bool has_sweep_segment = findSweepSegment(in, sweep, &sweep_segment);
+
+  // Perform the sweep process
   while (has_sweep_segment) {
-    // Align sweep segment.
-    if (counter_clockwise)
-      sweep_segment = sweep_segment.opposite();
-    // Connect previous sweep.
+    // Ensure the sweep segment is aligned with the direction
+    if (counter_clockwise) {
+      sweep_segment = sweep_segment.opposite();  // Reverse direction if needed
+    }
+
+    // Connect previous sweep
     if (!waypoints->empty()) {
       std::vector<Point_2> shortest_path;
       if (!calculateShortestPath(visibility_graph, waypoints->back(),
-                                 sweep_segment.source(), &shortest_path))
+                                 sweep_segment.source(), &shortest_path)) {
         return false;
-      for (std::vector<Point_2>::iterator it = std::next(shortest_path.begin());
-           it != std::prev(shortest_path.end()); ++it) {
+      }
+
+      for (auto it = std::next(shortest_path.begin()); it != std::prev(shortest_path.end()); ++it) {
         waypoints->push_back(*it);
       }
     }
-    // Traverse sweep.
-    waypoints->push_back(sweep_segment.source());
-    if (!sweep_segment.is_degenerate())
-      waypoints->push_back(sweep_segment.target());
 
-    // Offset sweep.
+    // Traverse the current sweep segment
+    waypoints->push_back(sweep_segment.source());
+    if (!sweep_segment.is_degenerate()) {
+      waypoints->push_back(sweep_segment.target());
+    }
+
+    // Offset the sweep for the next iteration
     sweep = sweep.transform(kOffset);
-    // Find new sweep segment.
-    Segment_2 prev_sweep_segment =
-        counter_clockwise ? sweep_segment.opposite() : sweep_segment;
+    Segment_2 prev_sweep_segment = counter_clockwise ? sweep_segment.opposite() : sweep_segment;
     has_sweep_segment = findSweepSegment(in, sweep, &sweep_segment);
-    // Add a final sweep.
-    // 当前的slice没切到polygon，同时在polygon中的最后一个slice已经遍历过（两个交点），到达终止条件
-    if (!has_sweep_segment &&
-        !((!waypoints->empty() &&
+
+    // Handle the final sweep case
+    if (!has_sweep_segment && !((!waypoints->empty() &&
            *std::prev(waypoints->end(), 1) == sorted_pts.back()) ||
           (waypoints->size() > 1 &&
            *std::prev(waypoints->end(), 2) == sorted_pts.back()))) {
-      // 取polygon中的最后一个slice
-      sweep = Line_2(sorted_pts.back(), dir);
+      sweep = Line_2(sorted_pts.back(), dir);  // Use the custom direction for the final sweep
       has_sweep_segment = findSweepSegment(in, sweep, &sweep_segment);
-      // 没切到polygon的不要
+
       if (!has_sweep_segment) {
-        std::cout << "Failed to calculate final sweep." << std::endl;
+        std::cerr << "Failed to calculate final sweep." << std::endl;
         return false;
       }
-      // Do not add super close sweep. sweep之间不能相距太近，太近的不要
+
       if (CGAL::squared_distance(sweep_segment, prev_sweep_segment) < 0.1)
         break;
     }
-    // Check observability of vertices between sweeps.
-    // 如果presweep和sweep之间存在距离两个sweep都超过一个offset的slice（无法观测点），则将其补上
+
+    // Check for unobservable points between sweeps
     if (has_sweep_segment) {
-      std::vector<Point_2>::const_iterator unobservable_point =
-          sorted_pts.end();
-      checkObservability(prev_sweep_segment, sweep_segment, sorted_pts,
-                         kSqOffset, &unobservable_point);
+      std::vector<Point_2>::const_iterator unobservable_point = sorted_pts.end();
+      checkObservability(prev_sweep_segment, sweep_segment, sorted_pts, kSqOffset, &unobservable_point);
+
       if (unobservable_point != sorted_pts.end()) {
-        //
-        sweep = Line_2(*unobservable_point, dir);
+        sweep = Line_2(*unobservable_point, dir);  // Use custom direction here
         has_sweep_segment = findSweepSegment(in, sweep, &sweep_segment);
+
         if (!has_sweep_segment) {
-          std::cout << "Failed to calculate extra sweep at point: "
+          std::cerr << "Failed to calculate extra sweep at point: "
                     << *unobservable_point << std::endl;
           return false;
         }
       }
     }
 
-    // Swap directions.
+    // Toggle direction for next iteration
     counter_clockwise = !counter_clockwise;
   }
 
