@@ -7,6 +7,7 @@
 #include <string>
 #define DENSE_PATH
 #include <fstream>
+#include <cmath>
 
 #define PARAMETER_FILE_PATH "../config/params.config"
 #define WAYPOINT_COORDINATE_FILE_PATH "../result/waypoints.txt"
@@ -25,7 +26,7 @@ bool mouse_select_start;
 bool manual_orientation;
 uint start_x;
 uint start_y;
-uint subdivisions;
+uint subdivision_dist;
 
 bool LoadParameters() {
   // Load parameters from config file
@@ -58,8 +59,8 @@ bool LoadParameters() {
     } else if (param == "START_POS") {
       in >> start_x;
       in >> start_y;
-    } else if (param == "PATH_SUBDIVISION") { // Ensure finer waypoints for ros navstack
-      in >> subdivisions;
+    } else if (param == "SUBDIVISION_DIST") { // Ensure finer waypoints for ros navstack
+      in >> subdivision_dist;
     } else if (param == "MANUAL_ORIENTATION") {
       // Allow user to define the orientation for each polygon 
       in >> manual_orientation;
@@ -604,28 +605,37 @@ for (size_t i = 1; i < way_points.size(); ++i) {
 
     std::vector<cv::Point> newPoints;
 
-    if (subdivisions > 0) {
-      // Compute the step increments based on the number of subdivisions
-      double stepX = (p2.x - p1.x) / static_cast<double>(subdivisions + 1);
-      double stepY = (p2.y - p1.y) / static_cast<double>(subdivisions + 1);
+    // get number of subdivisions
+    if (subdivision_dist > 0) {
+      double euclidean_dist = std::sqrt(std::pow(p2.x - p1.x, 2) + std::pow(p2.y - p1.y, 2));
+      // std::cout << "euclidean_dist: " << euclidean_dist << std::endl;
+      double number_of_subdivisions = std::round(euclidean_dist / subdivision_dist);
+      // std::cout << "# of subdivisions: " << number_of_subdivisions << std::endl;
 
-      // Add intermediate points
-      for (int i = 1; i <= subdivisions; ++i) {
-          cv::Point intermediatePoint;
-          intermediatePoint.x = std::round(p1.x + stepX * i);
-          intermediatePoint.y = std::round(p1.y + stepY * i);
-          newPoints.push_back(intermediatePoint);
-      }
 
-      // Draw the initial line segment from p1 to the first interpolated point
-      cv::line(img, p1, newPoints[0], cv::Scalar(0, 64, 255));
-      for (size_t j = 0; j < newPoints.size() - 1; ++j) {
-          cv::line(img, newPoints[j], newPoints[j + 1], cv::Scalar(0, 64, 255));  // Draw between subdivided points
+      if (number_of_subdivisions > 0) {
+        // Compute the step increments based on the number of subdivisions
+        double stepX = (p2.x - p1.x) / static_cast<double>(number_of_subdivisions + 1);
+        double stepY = (p2.y - p1.y) / static_cast<double>(number_of_subdivisions + 1);
+
+        // Add intermediate points
+        for (int i = 1; i <= number_of_subdivisions; ++i) {
+            cv::Point intermediatePoint;
+            intermediatePoint.x = std::round(p1.x + stepX * i);
+            intermediatePoint.y = std::round(p1.y + stepY * i);
+            newPoints.push_back(intermediatePoint);
+        }
+
+        // Draw the initial line segment from p1 to the first interpolated point
+        cv::line(img, p1, newPoints[0], cv::Scalar(0, 64, 255));
+        for (size_t j = 0; j < newPoints.size() - 1; ++j) {
+            cv::line(img, newPoints[j], newPoints[j + 1], cv::Scalar(0, 64, 255));  // Draw between subdivided points
+        }
+        cv::line(img, newPoints.back(), p2, cv::Scalar(0, 64, 255));  // Draw final segment to p2
+      } else {
+        // If subdivisions == 0, directly draw the line between p1 and p2
+          cv::line(img, p1, p2, cv::Scalar(0, 64, 255));
       }
-      cv::line(img, newPoints.back(), p2, cv::Scalar(0, 64, 255));  // Draw final segment to p2
-    } else {
-      // If subdivisions == 0, directly draw the line between p1 and p2
-        cv::line(img, p1, p2, cv::Scalar(0, 64, 255));
     }
 
     cv::namedWindow("cover", cv::WINDOW_NORMAL);

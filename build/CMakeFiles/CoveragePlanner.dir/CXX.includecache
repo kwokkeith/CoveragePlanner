@@ -82,9 +82,9 @@ graph_base.h
 cgal_definitions.h
 ../include/cgal_definitions.h
 
-/home/keith/Documents/Capstone/Tools/CoveragePlanner/src/main.cpp
+/home/gl/Documents/CAPSTONE/CoveragePlanner/src/main.cpp
 coverage_planner.h
-/home/keith/Documents/Capstone/Tools/CoveragePlanner/src/coverage_planner.h
+/home/gl/Documents/CAPSTONE/CoveragePlanner/src/coverage_planner.h
 chrono
 -
 cstdlib
@@ -98,6 +98,8 @@ ostream
 string
 -
 fstream
+-
+cmath
 -
 
 /usr/include/opencv4/opencv2/calib3d.hpp
