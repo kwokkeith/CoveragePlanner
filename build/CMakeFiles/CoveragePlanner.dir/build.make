@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/keith/Documents/Capstone/Tools/CoveragePlanner
+CMAKE_SOURCE_DIR = /home/gl/Documents/CAPSTONE/CoveragePlanner
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/keith/Documents/Capstone/Tools/CoveragePlanner/build
+CMAKE_BINARY_DIR = /home/gl/Documents/CAPSTONE/CoveragePlanner/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/CoveragePlanner.dir/depend.make
@@ -59,120 +59,120 @@ include CMakeFiles/CoveragePlanner.dir/flags.make
 
 CMakeFiles/CoveragePlanner.dir/src/bcd.cc.o: CMakeFiles/CoveragePlanner.dir/flags.make
 CMakeFiles/CoveragePlanner.dir/src/bcd.cc.o: ../src/bcd.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/keith/Documents/Capstone/Tools/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/bcd.cc.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/bcd.cc.o -c /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/bcd.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/gl/Documents/CAPSTONE/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/bcd.cc.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/bcd.cc.o -c /home/gl/Documents/CAPSTONE/CoveragePlanner/src/bcd.cc
 
 CMakeFiles/CoveragePlanner.dir/src/bcd.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/CoveragePlanner.dir/src/bcd.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/bcd.cc > CMakeFiles/CoveragePlanner.dir/src/bcd.cc.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/gl/Documents/CAPSTONE/CoveragePlanner/src/bcd.cc > CMakeFiles/CoveragePlanner.dir/src/bcd.cc.i
 
 CMakeFiles/CoveragePlanner.dir/src/bcd.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/CoveragePlanner.dir/src/bcd.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/bcd.cc -o CMakeFiles/CoveragePlanner.dir/src/bcd.cc.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gl/Documents/CAPSTONE/CoveragePlanner/src/bcd.cc -o CMakeFiles/CoveragePlanner.dir/src/bcd.cc.s
 
 CMakeFiles/CoveragePlanner.dir/src/cgal_comm.cc.o: CMakeFiles/CoveragePlanner.dir/flags.make
 CMakeFiles/CoveragePlanner.dir/src/cgal_comm.cc.o: ../src/cgal_comm.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/keith/Documents/Capstone/Tools/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/cgal_comm.cc.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/cgal_comm.cc.o -c /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/cgal_comm.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/gl/Documents/CAPSTONE/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/cgal_comm.cc.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/cgal_comm.cc.o -c /home/gl/Documents/CAPSTONE/CoveragePlanner/src/cgal_comm.cc
 
 CMakeFiles/CoveragePlanner.dir/src/cgal_comm.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/CoveragePlanner.dir/src/cgal_comm.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/cgal_comm.cc > CMakeFiles/CoveragePlanner.dir/src/cgal_comm.cc.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/gl/Documents/CAPSTONE/CoveragePlanner/src/cgal_comm.cc > CMakeFiles/CoveragePlanner.dir/src/cgal_comm.cc.i
 
 CMakeFiles/CoveragePlanner.dir/src/cgal_comm.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/CoveragePlanner.dir/src/cgal_comm.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/cgal_comm.cc -o CMakeFiles/CoveragePlanner.dir/src/cgal_comm.cc.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gl/Documents/CAPSTONE/CoveragePlanner/src/cgal_comm.cc -o CMakeFiles/CoveragePlanner.dir/src/cgal_comm.cc.s
 
 CMakeFiles/CoveragePlanner.dir/src/decomposition.cc.o: CMakeFiles/CoveragePlanner.dir/flags.make
 CMakeFiles/CoveragePlanner.dir/src/decomposition.cc.o: ../src/decomposition.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/keith/Documents/Capstone/Tools/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/decomposition.cc.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/decomposition.cc.o -c /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/decomposition.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/gl/Documents/CAPSTONE/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/decomposition.cc.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/decomposition.cc.o -c /home/gl/Documents/CAPSTONE/CoveragePlanner/src/decomposition.cc
 
 CMakeFiles/CoveragePlanner.dir/src/decomposition.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/CoveragePlanner.dir/src/decomposition.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/decomposition.cc > CMakeFiles/CoveragePlanner.dir/src/decomposition.cc.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/gl/Documents/CAPSTONE/CoveragePlanner/src/decomposition.cc > CMakeFiles/CoveragePlanner.dir/src/decomposition.cc.i
 
 CMakeFiles/CoveragePlanner.dir/src/decomposition.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/CoveragePlanner.dir/src/decomposition.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/decomposition.cc -o CMakeFiles/CoveragePlanner.dir/src/decomposition.cc.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gl/Documents/CAPSTONE/CoveragePlanner/src/decomposition.cc -o CMakeFiles/CoveragePlanner.dir/src/decomposition.cc.s
 
 CMakeFiles/CoveragePlanner.dir/src/main.cpp.o: CMakeFiles/CoveragePlanner.dir/flags.make
 CMakeFiles/CoveragePlanner.dir/src/main.cpp.o: ../src/main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/keith/Documents/Capstone/Tools/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/main.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/main.cpp.o -c /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/gl/Documents/CAPSTONE/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/main.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/main.cpp.o -c /home/gl/Documents/CAPSTONE/CoveragePlanner/src/main.cpp
 
 CMakeFiles/CoveragePlanner.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/CoveragePlanner.dir/src/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/main.cpp > CMakeFiles/CoveragePlanner.dir/src/main.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/gl/Documents/CAPSTONE/CoveragePlanner/src/main.cpp > CMakeFiles/CoveragePlanner.dir/src/main.cpp.i
 
 CMakeFiles/CoveragePlanner.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/CoveragePlanner.dir/src/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/main.cpp -o CMakeFiles/CoveragePlanner.dir/src/main.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gl/Documents/CAPSTONE/CoveragePlanner/src/main.cpp -o CMakeFiles/CoveragePlanner.dir/src/main.cpp.s
 
 CMakeFiles/CoveragePlanner.dir/src/sweep.cc.o: CMakeFiles/CoveragePlanner.dir/flags.make
 CMakeFiles/CoveragePlanner.dir/src/sweep.cc.o: ../src/sweep.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/keith/Documents/Capstone/Tools/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/sweep.cc.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/sweep.cc.o -c /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/sweep.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/gl/Documents/CAPSTONE/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/sweep.cc.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/sweep.cc.o -c /home/gl/Documents/CAPSTONE/CoveragePlanner/src/sweep.cc
 
 CMakeFiles/CoveragePlanner.dir/src/sweep.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/CoveragePlanner.dir/src/sweep.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/sweep.cc > CMakeFiles/CoveragePlanner.dir/src/sweep.cc.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/gl/Documents/CAPSTONE/CoveragePlanner/src/sweep.cc > CMakeFiles/CoveragePlanner.dir/src/sweep.cc.i
 
 CMakeFiles/CoveragePlanner.dir/src/sweep.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/CoveragePlanner.dir/src/sweep.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/sweep.cc -o CMakeFiles/CoveragePlanner.dir/src/sweep.cc.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gl/Documents/CAPSTONE/CoveragePlanner/src/sweep.cc -o CMakeFiles/CoveragePlanner.dir/src/sweep.cc.s
 
 CMakeFiles/CoveragePlanner.dir/src/tcd.cc.o: CMakeFiles/CoveragePlanner.dir/flags.make
 CMakeFiles/CoveragePlanner.dir/src/tcd.cc.o: ../src/tcd.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/keith/Documents/Capstone/Tools/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/tcd.cc.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/tcd.cc.o -c /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/tcd.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/gl/Documents/CAPSTONE/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/tcd.cc.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/tcd.cc.o -c /home/gl/Documents/CAPSTONE/CoveragePlanner/src/tcd.cc
 
 CMakeFiles/CoveragePlanner.dir/src/tcd.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/CoveragePlanner.dir/src/tcd.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/tcd.cc > CMakeFiles/CoveragePlanner.dir/src/tcd.cc.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/gl/Documents/CAPSTONE/CoveragePlanner/src/tcd.cc > CMakeFiles/CoveragePlanner.dir/src/tcd.cc.i
 
 CMakeFiles/CoveragePlanner.dir/src/tcd.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/CoveragePlanner.dir/src/tcd.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/tcd.cc -o CMakeFiles/CoveragePlanner.dir/src/tcd.cc.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gl/Documents/CAPSTONE/CoveragePlanner/src/tcd.cc -o CMakeFiles/CoveragePlanner.dir/src/tcd.cc.s
 
 CMakeFiles/CoveragePlanner.dir/src/visibility_graph.cc.o: CMakeFiles/CoveragePlanner.dir/flags.make
 CMakeFiles/CoveragePlanner.dir/src/visibility_graph.cc.o: ../src/visibility_graph.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/keith/Documents/Capstone/Tools/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/visibility_graph.cc.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/visibility_graph.cc.o -c /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/visibility_graph.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/gl/Documents/CAPSTONE/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/visibility_graph.cc.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/visibility_graph.cc.o -c /home/gl/Documents/CAPSTONE/CoveragePlanner/src/visibility_graph.cc
 
 CMakeFiles/CoveragePlanner.dir/src/visibility_graph.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/CoveragePlanner.dir/src/visibility_graph.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/visibility_graph.cc > CMakeFiles/CoveragePlanner.dir/src/visibility_graph.cc.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/gl/Documents/CAPSTONE/CoveragePlanner/src/visibility_graph.cc > CMakeFiles/CoveragePlanner.dir/src/visibility_graph.cc.i
 
 CMakeFiles/CoveragePlanner.dir/src/visibility_graph.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/CoveragePlanner.dir/src/visibility_graph.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/visibility_graph.cc -o CMakeFiles/CoveragePlanner.dir/src/visibility_graph.cc.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gl/Documents/CAPSTONE/CoveragePlanner/src/visibility_graph.cc -o CMakeFiles/CoveragePlanner.dir/src/visibility_graph.cc.s
 
 CMakeFiles/CoveragePlanner.dir/src/visibility_polygon.cc.o: CMakeFiles/CoveragePlanner.dir/flags.make
 CMakeFiles/CoveragePlanner.dir/src/visibility_polygon.cc.o: ../src/visibility_polygon.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/keith/Documents/Capstone/Tools/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/visibility_polygon.cc.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/visibility_polygon.cc.o -c /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/visibility_polygon.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/gl/Documents/CAPSTONE/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/visibility_polygon.cc.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/visibility_polygon.cc.o -c /home/gl/Documents/CAPSTONE/CoveragePlanner/src/visibility_polygon.cc
 
 CMakeFiles/CoveragePlanner.dir/src/visibility_polygon.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/CoveragePlanner.dir/src/visibility_polygon.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/visibility_polygon.cc > CMakeFiles/CoveragePlanner.dir/src/visibility_polygon.cc.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/gl/Documents/CAPSTONE/CoveragePlanner/src/visibility_polygon.cc > CMakeFiles/CoveragePlanner.dir/src/visibility_polygon.cc.i
 
 CMakeFiles/CoveragePlanner.dir/src/visibility_polygon.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/CoveragePlanner.dir/src/visibility_polygon.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/visibility_polygon.cc -o CMakeFiles/CoveragePlanner.dir/src/visibility_polygon.cc.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gl/Documents/CAPSTONE/CoveragePlanner/src/visibility_polygon.cc -o CMakeFiles/CoveragePlanner.dir/src/visibility_polygon.cc.s
 
 CMakeFiles/CoveragePlanner.dir/src/weakly_monotone.cc.o: CMakeFiles/CoveragePlanner.dir/flags.make
 CMakeFiles/CoveragePlanner.dir/src/weakly_monotone.cc.o: ../src/weakly_monotone.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/keith/Documents/Capstone/Tools/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/weakly_monotone.cc.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/weakly_monotone.cc.o -c /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/weakly_monotone.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/gl/Documents/CAPSTONE/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/CoveragePlanner.dir/src/weakly_monotone.cc.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CoveragePlanner.dir/src/weakly_monotone.cc.o -c /home/gl/Documents/CAPSTONE/CoveragePlanner/src/weakly_monotone.cc
 
 CMakeFiles/CoveragePlanner.dir/src/weakly_monotone.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/CoveragePlanner.dir/src/weakly_monotone.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/weakly_monotone.cc > CMakeFiles/CoveragePlanner.dir/src/weakly_monotone.cc.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/gl/Documents/CAPSTONE/CoveragePlanner/src/weakly_monotone.cc > CMakeFiles/CoveragePlanner.dir/src/weakly_monotone.cc.i
 
 CMakeFiles/CoveragePlanner.dir/src/weakly_monotone.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/CoveragePlanner.dir/src/weakly_monotone.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/keith/Documents/Capstone/Tools/CoveragePlanner/src/weakly_monotone.cc -o CMakeFiles/CoveragePlanner.dir/src/weakly_monotone.cc.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gl/Documents/CAPSTONE/CoveragePlanner/src/weakly_monotone.cc -o CMakeFiles/CoveragePlanner.dir/src/weakly_monotone.cc.s
 
 # Object files for target CoveragePlanner
 CoveragePlanner_OBJECTS = \
@@ -250,7 +250,7 @@ CoveragePlanner: /usr/lib/x86_64-linux-gnu/libopencv_core.so.4.2.0
 CoveragePlanner: /usr/lib/x86_64-linux-gnu/libmpfr.so
 CoveragePlanner: /usr/lib/x86_64-linux-gnu/libgmp.so
 CoveragePlanner: CMakeFiles/CoveragePlanner.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/keith/Documents/Capstone/Tools/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable CoveragePlanner"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/gl/Documents/CAPSTONE/CoveragePlanner/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable CoveragePlanner"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/CoveragePlanner.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -263,6 +263,6 @@ CMakeFiles/CoveragePlanner.dir/clean:
 .PHONY : CMakeFiles/CoveragePlanner.dir/clean
 
 CMakeFiles/CoveragePlanner.dir/depend:
-	cd /home/keith/Documents/Capstone/Tools/CoveragePlanner/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/keith/Documents/Capstone/Tools/CoveragePlanner /home/keith/Documents/Capstone/Tools/CoveragePlanner /home/keith/Documents/Capstone/Tools/CoveragePlanner/build /home/keith/Documents/Capstone/Tools/CoveragePlanner/build /home/keith/Documents/Capstone/Tools/CoveragePlanner/build/CMakeFiles/CoveragePlanner.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/gl/Documents/CAPSTONE/CoveragePlanner/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/gl/Documents/CAPSTONE/CoveragePlanner /home/gl/Documents/CAPSTONE/CoveragePlanner /home/gl/Documents/CAPSTONE/CoveragePlanner/build /home/gl/Documents/CAPSTONE/CoveragePlanner/build /home/gl/Documents/CAPSTONE/CoveragePlanner/build/CMakeFiles/CoveragePlanner.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/CoveragePlanner.dir/depend
 

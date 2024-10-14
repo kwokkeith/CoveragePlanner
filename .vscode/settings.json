@@ -84,5 +84,6 @@
         "utility": "cpp",
         "thread": "cpp",
         "cinttypes": "cpp"
-    }
+    },
+    "ros.distro": "noetic"
 }
