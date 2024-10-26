@@ -8,6 +8,8 @@
 #define DENSE_PATH
 #include <fstream>
 #include <cmath>
+#include <vector>
+#include <utility>
 
 #define PARAMETER_FILE_PATH "../config/params.config"
 #define WAYPOINT_COORDINATE_FILE_PATH "../result/waypoints.txt"
@@ -27,6 +29,8 @@ bool manual_orientation;
 uint start_x;
 uint start_y;
 uint subdivision_dist;
+std:: vector<cv::Point> points;
+cv::Mat img_copy;
 
 bool LoadParameters() {
   // Load parameters from config file
@@ -82,6 +86,35 @@ bool LoadParameters() {
   return true;
 }
 
+void mouseCallback(int event, int x, int y, int flags, void* param) {
+    if (event == cv::EVENT_LBUTTONDOWN && points.size() < 4) {
+        points.push_back(cv::Point(x, y));
+        std::cout << "Point" << points.size() << ": " << x << "," << y << std::endl;
+        cv::circle(img_copy, cv::Point(x, y), 2, cv::Scalar(0, 0, 255), -1);
+        cv::imshow("Select 4 points", img_copy);
+    }
+}
+
+// Function to crop and transform the image based on selected points
+std::pair<cv::Mat, cv::Point> cropAndTransform(const cv::Mat& img) {
+    // Find the bounding rectangle for the selected points
+    std::vector<int> x_coords, y_coords;
+    for (const auto& p : points) {
+        x_coords.push_back(p.x);
+        y_coords.push_back(p.y);
+    }
+
+    // Determine the top-left and bottom-right corners
+    int x_min = *std::min_element(x_coords.begin(), x_coords.end());
+    int x_max = *std::max_element(x_coords.begin(), x_coords.end());
+    int y_min = *std::min_element(y_coords.begin(), y_coords.end());
+    int y_max = *std::max_element(y_coords.begin(), y_coords.end());
+
+    cv::Mat cropped_img = img(cv::Rect(x_min, y_min, x_max - x_min, y_max - y_min)).clone();
+
+    return std::make_pair(cropped_img, cv::Point(x_min,y_min));
+}
+
 int main() {
   // Load parameters from config file
   if (!LoadParameters()) {
@@ -89,7 +122,25 @@ int main() {
   }
 
   // Read image to be processed
+  cv::Mat original_img = cv::imread(image_path);
   cv::Mat img = cv::imread(image_path);
+
+    img_copy = img.clone();
+  cv::imshow("Select 4 points", img_copy);
+
+  //Set mouse callback
+  cv::setMouseCallback("Select 4 points", mouseCallback, nullptr);
+  cv::waitKey(0);
+
+  auto crop = cropAndTransform(img);
+  cv::Mat result = crop.first;
+  cv::Point top_left=crop.second;
+  if (!result.empty()) {
+      cv::imshow("Cropped Image", result);
+      cv::waitKey(0);
+  }
+
+  img=result;
 
   std::cout << "Read map" << std::endl;
   std::cout << "Pre-Processing map image" << std::endl;
@@ -189,16 +240,20 @@ int main() {
   }
   //    cv::imshow("only contours", cnt_img);
 
-  cv::Mat poly_canvas = img.clone();
+  cv::Mat poly_canvas = original_img.clone();
   std::vector<cv::Point> poly;
   std::vector<std::vector<cv::Point>> polys;
   for (auto &contour : contours) {
     cv::approxPolyDP(contour, poly, 3, true);
-    polys.emplace_back(poly);
+    std::vector<cv::Point> translated_poly;
+    for (const auto& point : poly) {
+        translated_poly.push_back(point + top_left);
+    }
+    polys.emplace_back(translated_poly);
     poly.clear();
   }
   for (int i = 0; i < polys.size(); i++) {
-    cv::drawContours(poly_canvas, polys, i, cv::Scalar(255, 0, 255));
+    cv::drawContours(poly_canvas, std::vector<std::vector<cv::Point>>{polys[i]}, -1, cv::Scalar(255, 0, 255));
   }
 
   cv::imshow("polygons", poly_canvas);
@@ -331,7 +386,7 @@ int main() {
   Point_2 start;
   if (mouse_select_start) {
     std::cout << "Select starting point" << std::endl;
-    start = getStartingPoint(img);
+    start = getStartingPoint(original_img);
   } else {
     start = Point_2(start_x, start_y);
     std::cout << "Starting point configured: (" << start.x() << ", " << start.y() << ")" << std::endl;
@@ -359,7 +414,7 @@ int main() {
 
     for (size_t i = 0; i < bcd_cells.size(); ++i) {
       // Display the polygon to the user using OpenCV as before.
-      cv::Mat img_copy = img.clone();  // Create a copy of the image
+      cv::Mat img_copy = original_img.clone();  // Create a copy of the image
       std::vector<std::vector<cv::Point>> poly_contours;
 
       // Extract the points of the current polygon
@@ -584,7 +639,7 @@ int main() {
 
   cv::Point p1, p2;
   cv::namedWindow("cover", cv::WINDOW_NORMAL);
-  cv::imshow("cover", img);
+  cv::imshow("cover", original_img);
   cv::waitKey();
 
   // Open waypoint file to write coordinates
@@ -627,21 +682,21 @@ for (size_t i = 1; i < way_points.size(); ++i) {
         }
 
         // Draw the initial line segment from p1 to the first interpolated point
-        cv::line(img, p1, newPoints[0], cv::Scalar(0, 64, 255));
+        cv::line(original_img, p1, newPoints[0], cv::Scalar(0, 64, 255));
         for (size_t j = 0; j < newPoints.size() - 1; ++j) {
-            cv::line(img, newPoints[j], newPoints[j + 1], cv::Scalar(0, 64, 255));  // Draw between subdivided points
+            cv::line(original_img, newPoints[j], newPoints[j + 1], cv::Scalar(0, 64, 255));  // Draw between subdivided points
         }
-        cv::line(img, newPoints.back(), p2, cv::Scalar(0, 64, 255));  // Draw final segment to p2
+        cv::line(original_img, newPoints.back(), p2, cv::Scalar(0, 64, 255));  // Draw final segment to p2
       } else {
         // If subdivisions == 0, directly draw the line between p1 and p2
-          cv::line(img, p1, p2, cv::Scalar(0, 64, 255));
+          cv::line(original_img, p1, p2, cv::Scalar(0, 64, 255));
       }
     }
 
     cv::namedWindow("cover", cv::WINDOW_NORMAL);
-    cv::imshow("cover", img);
+    cv::imshow("cover", original_img);
     //        cv::waitKey(50);
-    cv::line(img, p1, p2, cv::Scalar(200, 200, 200));
+    cv::line(original_img, p1, p2, cv::Scalar(200, 200, 200));
 
     // Write waypoints to a file (to be fed as coordinates for robot)
     if (i == 1) {
@@ -658,7 +713,7 @@ for (size_t i = 1; i < way_points.size(); ++i) {
   out.close();
 
   cv::waitKey();
-  cv::imwrite("image_result.png", img);
+  cv::imwrite("image_result.png", original_img);
 #else
 
   cv::Point p1, p2;
