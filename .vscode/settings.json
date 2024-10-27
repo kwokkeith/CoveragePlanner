@@ -83,7 +83,16 @@
         "type_traits": "cpp",
         "utility": "cpp",
         "thread": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "__bits": "cpp",
+        "__debug": "cpp",
+        "__errc": "cpp",
+        "__tuple": "cpp",
+        "__nullptr": "cpp",
+        "__string": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "text_encoding": "cpp"
     },
     "ros.distro": "noetic"
 }

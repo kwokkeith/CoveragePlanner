@@ -26,11 +26,13 @@ int sweep_step;
 bool show_cells;
 bool mouse_select_start;
 bool manual_orientation;
+bool crop_region;
 uint start_x;
 uint start_y;
 uint subdivision_dist;
 std:: vector<cv::Point> points;
 cv::Mat img_copy;
+cv::Point top_left;
 
 bool LoadParameters() {
   // Load parameters from config file
@@ -68,6 +70,9 @@ bool LoadParameters() {
     } else if (param == "MANUAL_ORIENTATION") {
       // Allow user to define the orientation for each polygon 
       in >> manual_orientation;
+    } else if (param == "CROP_REGION") {
+      //Allow user to define the region of interest
+      in >> crop_region;
     }
   }
   in.close();
@@ -111,8 +116,8 @@ std::pair<cv::Mat, cv::Point> cropAndTransform(const cv::Mat& img) {
     int y_max = *std::max_element(y_coords.begin(), y_coords.end());
 
     cv::Mat cropped_img = img(cv::Rect(x_min, y_min, x_max - x_min, y_max - y_min)).clone();
-
-    return std::make_pair(cropped_img, cv::Point(x_min,y_min));
+    top_left=cv::Point(x_min,y_min);
+    return std::make_pair(cropped_img, top_left);
 }
 
 int main() {
@@ -124,23 +129,23 @@ int main() {
   // Read image to be processed
   cv::Mat original_img = cv::imread(image_path);
   cv::Mat img = cv::imread(image_path);
-
     img_copy = img.clone();
-  cv::imshow("Select 4 points", img_copy);
 
-  //Set mouse callback
-  cv::setMouseCallback("Select 4 points", mouseCallback, nullptr);
-  cv::waitKey(0);
+  if(crop_region){
+      cv::imshow("Select 4 points", img_copy);
 
-  auto crop = cropAndTransform(img);
-  cv::Mat result = crop.first;
-  cv::Point top_left=crop.second;
-  if (!result.empty()) {
-      cv::imshow("Cropped Image", result);
-      cv::waitKey(0);
+    //Set mouse callback
+    cv::setMouseCallback("Select 4 points", mouseCallback, nullptr);
+    cv::waitKey(0);
+    auto crop = cropAndTransform(img);
+    cv::Mat result = crop.first;
+    top_left=crop.second; //redundant?
+    if (!result.empty()) {
+        cv::imshow("Cropped Image", result);
+        cv::waitKey(0);
+        img=result;
+    }
   }
-
-  img=result;
 
   std::cout << "Read map" << std::endl;
   std::cout << "Pre-Processing map image" << std::endl;
@@ -243,13 +248,18 @@ int main() {
   cv::Mat poly_canvas = original_img.clone();
   std::vector<cv::Point> poly;
   std::vector<std::vector<cv::Point>> polys;
+
   for (auto &contour : contours) {
     cv::approxPolyDP(contour, poly, 3, true);
-    std::vector<cv::Point> translated_poly;
-    for (const auto& point : poly) {
-        translated_poly.push_back(point + top_left);
+    if(crop_region){
+      std::vector<cv::Point> translated_poly;
+      for (const auto& point : poly) {
+          translated_poly.push_back(point + top_left);
+      }
+      polys.emplace_back(translated_poly);
+    } else {
+      polys.emplace_back(poly);
     }
-    polys.emplace_back(translated_poly);
     poly.clear();
   }
   for (int i = 0; i < polys.size(); i++) {
@@ -386,7 +396,8 @@ int main() {
   Point_2 start;
   if (mouse_select_start) {
     std::cout << "Select starting point" << std::endl;
-    start = getStartingPoint(original_img);
+    //start = getStartingPoint(original_img);
+    start = getStartingPoint(poly_canvas);
   } else {
     start = Point_2(start_x, start_y);
     std::cout << "Starting point configured: (" << start.x() << ", " << start.y() << ")" << std::endl;
