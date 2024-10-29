@@ -14,6 +14,7 @@
 #define PARAMETER_FILE_PATH "../config/params.config"
 #define WAYPOINT_COORDINATE_FILE_PATH "../result/waypoints.txt"
 #define EXTERNAL_POLYGON_FILE_PATH "../result/ext_polygon_coord.txt"
+#define REGION_OF_INTEREST_FILE_PATH "../result/roi_points.txt"
 
 std::string image_path;
 uint robot_width;
@@ -30,7 +31,7 @@ bool crop_region;
 uint start_x;
 uint start_y;
 uint subdivision_dist;
-std:: vector<cv::Point> points;
+std::vector<cv::Point> selected_points;
 cv::Mat img_copy;
 cv::Point top_left;
 
@@ -92,11 +93,23 @@ bool LoadParameters() {
 }
 
 void mouseCallback(int event, int x, int y, int flags, void* param) {
-    if (event == cv::EVENT_LBUTTONDOWN && points.size() < 4) {
-        points.push_back(cv::Point(x, y));
-        std::cout << "Point" << points.size() << ": " << x << "," << y << std::endl;
+    if (event == cv::EVENT_LBUTTONDOWN && selected_points.size() < 4) {
+        selected_points.push_back(cv::Point(x, y));
+        std::cout << "Point" << selected_points.size() << ": " << x << "," << y << std::endl;
         cv::circle(img_copy, cv::Point(x, y), 2, cv::Scalar(0, 0, 255), -1);
         cv::imshow("Select 4 points", img_copy);
+        if (selected_points.size() == 4) {
+          std::ofstream outFile(REGION_OF_INTEREST_FILE_PATH);
+          if (outFile.is_open()){
+            for (const auto& point : selected_points) {
+              //outFile << point.x << " " << point.y << "\n";
+            }
+            outFile.close();
+            //std::cout << "ROI points are saved to roi_points.txt" <<std::endl;
+          } else {
+            //std::cerr << "unable to open file" << std::endl;
+          }
+        }
     }
 }
 
@@ -104,7 +117,7 @@ void mouseCallback(int event, int x, int y, int flags, void* param) {
 std::pair<cv::Mat, cv::Point> cropAndTransform(const cv::Mat& img) {
     // Find the bounding rectangle for the selected points
     std::vector<int> x_coords, y_coords;
-    for (const auto& p : points) {
+    for (const auto& p : selected_points) {
         x_coords.push_back(p.x);
         y_coords.push_back(p.y);
     }
@@ -137,12 +150,14 @@ int main() {
     //Set mouse callback
     cv::setMouseCallback("Select 4 points", mouseCallback, nullptr);
     cv::waitKey(0);
+    //cv::destroyWindow("Select 4 points");
     auto crop = cropAndTransform(img);
     cv::Mat result = crop.first;
     top_left=crop.second; //redundant?
     if (!result.empty()) {
         cv::imshow("Cropped Image", result);
         cv::waitKey(0);
+        cv::destroyWindow("Cropped Image");
         img=result;
     }
   }
@@ -208,6 +223,7 @@ int main() {
   cv::imshow("preprocess", img_);
   cv::waitKey();
   cv::imwrite("preprocess_img.png", img_);
+ //cv::destroyWindow("preprocess");
 
   std::cout << std::string(50, '-') << std::endl;
 
@@ -708,18 +724,20 @@ for (size_t i = 1; i < way_points.size(); ++i) {
     cv::imshow("cover", original_img);
     //        cv::waitKey(50);
     cv::line(original_img, p1, p2, cv::Scalar(200, 200, 200));
-
+    cv::Size sz = original_img.size();
+    int imgHeight = sz.height;
+    int y_center = sz.height / 2;
     // Write waypoints to a file (to be fed as coordinates for robot)
     if (i == 1) {
-        out << p1.x << " " << p1.y << std::endl;
+        out << p1.x << " " << (2* y_center - p1.y) << std::endl;
     }
     for (const auto& point : newPoints) {
-        out << point.x << " " << point.y << std::endl;
+        out << point.x << " " << (2*y_center - point.y) << std::endl;
     }
 
     // For all other points we will just use p2,
     // we do not pass both p1 and p2 as it would duplicate the points
-    out << p2.x << " " << p2.y << std::endl;
+    out << p2.x << " " << (2*y_center-p2.y) << std::endl;
   }
   out.close();
 
