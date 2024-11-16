@@ -92,7 +92,13 @@
         "__string": "cpp",
         "compare": "cpp",
         "concepts": "cpp",
-        "text_encoding": "cpp"
+        "text_encoding": "cpp",
+        "__std_stream": "cpp",
+        "format": "cpp",
+        "*.inc": "cpp",
+        "*.txx": "cpp",
+        "forward_list": "cpp",
+        "filesystem": "cpp"
     },
     "ros.distro": "noetic"
 }
