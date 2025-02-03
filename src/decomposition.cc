@@ -22,7 +22,7 @@
 #include "tcd.h"
 #include "weakly_monotone.h"
 #include <thread>
-#include <mutex>
+#include <atomic>
 
 namespace polygon_coverage_planning {
 
@@ -103,8 +103,9 @@ double findBestSweepDir(const Polygon_2 &cell, Direction_2 *best_dir) {
 bool computeBestBCDFromPolygonWithHoles(const PolygonWithHoles &pwh,
                                         std::vector<Polygon_2> *bcd_polygons) {
   bcd_polygons->clear();
-  double min_altitude_sum = std::numeric_limits<double>::max();
-  std::mutex mtx; // Mutex to access shared variables (min_altitude_sum, bcd_polygons)
+  std::atomic<double> min_altitude_sum{std::numeric_limits<double>::max()};
+  std::atomic_flag update_flag = ATOMIC_FLAG_INIT;
+  std::vector<Polygon_2> best_bcd_polygons;
 
   // Get all possible decomposition directions.
   std::vector<Direction_2> directions = findPerpEdgeDirections(pwh);
@@ -137,15 +138,22 @@ bool computeBestBCDFromPolygonWithHoles(const PolygonWithHoles &pwh,
           // Update the local best result for this thread
           if (min_altitude_sum_tmp < local_min_altitude_sum) {
               local_min_altitude_sum = min_altitude_sum_tmp;
-              local_best_bcd = cells;
+              local_best_bcd = std::move(cells);
           }
       }
 
-      // Update global result using shared variable 
-      std::lock_guard<std::mutex> lock(mtx);
-      if (local_min_altitude_sum < min_altitude_sum) {
-          min_altitude_sum = local_min_altitude_sum;
+      // Atomic update global result using shared variable 
+      double expected = min_altitude_sum.load(std::memory_order_relaxed);
+      while (local_min_altitude_sum < expected &&
+              !min_altitude_sum.compare_exchange_weak(expected, local_min_altitude_sum,
+                                                      std::memory_order_acq_rel)) {
+          expected = min_altitude_sum.load(std::memory_order_relaxed);
+      }
+
+      if (local_min_altitude_sum == min_altitude_sum.load(std::memory_order_relaxed)) {
+          while (update_flag.test_and_set(std::memory_order_acquire));
           *bcd_polygons = std::move(local_best_bcd);
+          update_flag.clear(std::memory_order_release);
       }
   };
 
